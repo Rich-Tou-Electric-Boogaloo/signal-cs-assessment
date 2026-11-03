@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "echo \"No build step: public/ is served as-is.\"",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy"
   },
