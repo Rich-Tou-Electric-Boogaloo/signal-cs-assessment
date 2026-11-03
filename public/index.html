@@ -89,6 +89,14 @@ p{margin:0}
 .linkish{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;font-size:13px}
 .pinrow{display:flex;gap:8px;flex-wrap:wrap}
 .pinrow input{border:1px solid var(--line);border-radius:var(--r);padding:9px 10px;background:var(--surface-2);font-family:var(--f-mono);letter-spacing:.2em;width:160px}
+.resp{display:flex;flex-direction:column;gap:12px}
+.resp-item{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:10px;background:var(--surface)}
+.resp-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.resp-line{display:grid;grid-template-columns:minmax(0,180px) minmax(0,1fr);gap:12px}
+.resp-line .label{text-transform:none;letter-spacing:0;font-size:13px}
+.resp .good{color:var(--ok);font-weight:600}.resp .bad{color:var(--urgent);font-weight:600}
+.resp-best{font-size:13px;margin-top:2px}
+@media (max-width:760px){.resp-line{grid-template-columns:minmax(0,1fr);gap:2px}}
 .codebox{width:100%;font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:var(--r);padding:10px;background:var(--surface-2);word-break:break-all;resize:vertical}
 .err{color:var(--urgent);font-weight:600;font-size:14px}
 
@@ -816,38 +824,33 @@ function pinView(title,msg){
 }
 
 function setupView(){
+  ensureHistory();
+  const remote=API_MODE
+    ?`<li>Add the candidate's email to Cloudflare Access, then send them this page's link. For 35 minutes, add <span class="mono">#t35</span> to the end.</li>`
+    :`<li>Share this page from its Share menu with a link anyone can open, then send the candidate the link. For 35 minutes, add <span class="mono">#t35</span> to the end of the link.</li>`;
   return `<div class="intro">
+   ${canStore()?`<section class="panel wide">${historyBlock("Completed responses")}</section>`:""}
    <section class="panel">
     <span class="eyebrow">Assessor setup</span>
-    <h1>Set up the next candidate</h1>
-    <p class="muted" style="max-width:62ch">Enter the candidate's name and the time limit, then hand the laptop over. The candidate sees a full briefing before the timer starts. Results stay behind this PIN, and the page locks again as soon as you hand over.</p>
+    <h2>Set up the next candidate</h2>
+    <p class="muted" style="max-width:62ch">For an in-person session, enter the candidate's name and time limit, then hand over. The page locks again as soon as you do.</p>
     <div class="field"><label for="cand">Candidate's full name (optional, they can type it themselves)</label><input id="cand" autocomplete="off" value="${esc(S.name)}" placeholder="e.g. Alex Morgan"></div>
     <div class="field"><label for="mins">Time limit</label>
      <select id="mins"><option value="25"${S.mins==25?" selected":""}>25 minutes (recommended)</option><option value="35"${S.mins==35?" selected":""}>35 minutes</option></select></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="handover">Lock and show the candidate briefing</button>
-    ${canStore()?`<button class="btn" id="hist">View all results</button>`:""}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="handover">Lock and show the candidate briefing</button></div>
    </section>
    <section class="panel">
     <h2>Remote interview</h2>
     <ol class="steps">
-     <li>Share this page from its Share menu with a link anyone can open, then send the candidate the link. For 35 minutes, add <span class="mono">#t35</span> to the end of the link.</li>
+     ${remote}
      <li>On the video call, ask them to share their screen for the whole exercise.</li>
      <li>They read the briefing, enter their name and start the timer themselves.</li>
-     <li>When they finish, their results save automatically and appear under View all results. If saving fails, they'll see a results code to paste into the call chat, and you paste it below.</li>
+     <li>When they finish, their responses save automatically and appear under Completed responses. If saving fails, they'll see a results code to paste into the call chat, and you paste it below.</li>
     </ol>
     <div class="field"><label for="pasteCode" class="label">Open a candidate's results code</label>
      <textarea id="pasteCode" rows="3" class="codebox" placeholder="TSG1-…">${esc(S.pasted||"")}</textarea>
      ${S.codeErr?`<p class="err" role="alert">${esc(S.codeErr)}</p>`:""}
      <button class="btn primary" id="loadCode" style="align-self:flex-start">Show results</button></div>
-   </section>
-   <section class="panel wide">
-    <h2>What happens next</h2>
-    <ol class="steps">
-     <li>The candidate reads the briefing and ticks that they understand it.</li>
-     <li>They start the timer themselves, triage 12 tickets, then work them one by one.</li>
-     <li>Each candidate gets a different queue: one ticket from each of 12 themes, drawn at random. A phone message, a follow-up on the safety ticket and a new ticket every 5 minutes arrive automatically.</li>
-     <li>When time runs out or they finish, their answers are saved. Unlock with your PIN to see the score, red flags and written reply.</li>
-    </ol>
    </section></div>`;
 }
 
@@ -1004,7 +1007,7 @@ function doneView(){
 
 function resultsView(r){
   if(!r) return `<div class="empty">No results.</div>`;
-  if(!r.set) return `<section class="panel"><h2>${esc(r.name||"Result")}</h2><p class="muted">This result was saved by an older version of the exercise and can't be shown in detail. Score: ${Math.round(r.total||0)} / 100.</p><button class="btn" id="backStart">Back to setup</button></section>`;
+  if(!r.set) return `<section class="panel"><h2>${esc(r.name||"Result")}</h2><p class="muted">This result was saved by an older version of the exercise and can't be shown in detail. Score: ${Math.round(r.total||0)} / 100.</p><button class="btn" id="backStart">Back to assessor area</button></section>`;
   const N=r.num||{},D=id=>dn(id,N),F=(txt,id)=>fmt(txt,id,N);
   const bar=(name,v,max)=>`<div class="bar"><span class="label">${name}</span><span><b class="mono" style="font-size:22px">${Math.round(v)}</b><span class="muted"> / ${max}</span></span><div class="track"><div class="fill" style="width:${Math.max(0,Math.min(100,v/max*100))}%"></div></div></div>`;
   const model=modelOrder(r.set);
@@ -1023,7 +1026,7 @@ function resultsView(r){
   return `<div style="display:flex;flex-direction:column;gap:20px">
    <div class="score-hero"><div><span class="label">${esc(r.name)} · ${new Date(r.finishedAt).toLocaleString("en-AU",{dateStyle:"medium",timeStyle:"short"})}</span><div class="big">${Math.round(r.total)}<span class="muted" style="font-size:24px"> / 100</span></div></div>
     <div class="muted" style="max-width:52ch">Auto-scored from their choices. Score the written reply yourself using the rubric's "Written responses" criterion. ${r.complete?"Finished all tickets":"Ran out of time or finished early"} in ${Math.floor(r.secs/60)}m ${String(Math.round(r.secs%60)).padStart(2,"0")}s. Each candidate gets a different mix of tickets, one from every theme.</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="backStart">Back to setup</button>${r._fromCode&&canStore()&&!r._saved?`<button class="btn primary" id="saveCode">Save to results list</button>`:""}${r._saved&&r._fromCode?`<span class="chip done">Saved</span>`:""}${canStore()?`<button class="btn" id="hist">All saved results</button>`:""}</div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="backStart">Back to assessor area</button>${r._fromCode&&canStore()&&!r._saved?`<button class="btn primary" id="saveCode">Save to results list</button>`:""}${r._saved&&r._fromCode?`<span class="chip done">Saved</span>`:""}${canStore()?`<button class="btn" id="hist">All saved results</button>`:""}</div></div>
    <div class="bars">${bar("Prioritisation",r.parts.prio,30)}${bar("Accuracy",r.parts.acc,25)}${bar("Judgement",r.parts.judg,25)}${bar("Adaptability",r.parts.adapt,20)}</div>
    ${r.flags.length?`<section style="display:flex;flex-direction:column;gap:8px"><h3>Red flags (${r.flags.length})</h3>${r.flags.map(f=>`<div class="flag">${esc(f)}</div>`).join("")}</section>`:`<p class="chip done" style="align-self:flex-start">No red flags</p>`}
    <section class="panel"><h3>Accuracy checks caught: ${r.traps.length} of ${r.trapsAll.length}</h3><ul class="pol">${r.trapsAll.map(x=>`<li>${r.traps.includes(x)?"✓":"✗"} ${esc(x)}</li>`).join("")}</ul></section>
@@ -1035,25 +1038,43 @@ function resultsView(r){
     <p class="muted">Adaptability only counts curveballs that arrived.</p></section>
    ${(r.review||[]).length?`<section class="panel"><h3>"Other" handling answers to review (${r.review.length})</h3><p class="muted">These weren't auto-scored. Read them and adjust the Judgement score if they're sound.</p><div class="scroll"><table class="rtable">${r.review.map(x=>`<tr><td class="mono">${D(x.id)}</td><td>${esc(x.text||"(left blank)")}</td><td class="muted">Best: ${esc(F(best(ALL[x.id].h)[0],x.id))}</td></tr>`).join("")}</table></div></section>`:""}
    <section class="panel"><h3>Written reply to ${esc(ALL[wId].from)} (${D(wId)}: ${esc(ALL[wId].subj)})</h3><div class="tbody" style="max-width:none">${r.written?esc(r.written):"Not written"}</div></section>
-   <section class="panel"><h3>How they'd handle each ticket</h3><div class="scroll"><table class="rtable"><tr><th>Ticket</th><th>Their choice</th><th>Points</th><th>Best answer</th></tr>${hdet}</table></div></section>
-   <section class="panel"><h3>Every answer</h3><div class="scroll"><table class="rtable"><tr><th>Ticket</th><th>Their choice</th><th>Points</th><th>Best answer</th></tr>${det}</table></div></section>
+   <section class="panel"><h3>Responses, ticket by ticket</h3><p class="muted">In the order they worked them, then tickets they didn't reach. Green is the best answer; where they missed it, the best answer is shown underneath.</p>${respHtml(r)}</section>
   </div>`;
 }
 
+// Every response for one candidate, grouped by ticket.
+function respHtml(r){
+  const N=r.num||{},D=id=>dn(id,N),F=(txt,id)=>fmt(txt,id,N);
+  const all=[...r.set,...(r.arrived||[])];
+  const order=[...r.seq.filter(id=>all.includes(id)),...all.filter(id=>!r.seq.includes(id))];
+  const top=list=>list.reduce((b,x)=>(x.pts??x[1])>(b.pts??b[1])?x:b);
+  const line=(label,choice,pts,best)=>`<div class="resp-line"><span class="label">${label}</span><div><div class="${pts===2?"good":pts===0?"bad":""}">${choice}${pts!=null?` <span class="mono muted">(${pts}/2)</span>`:""}</div>${best?`<div class="muted resp-best">Best: ${best}</div>`:""}</div></div>`;
+  return `<div class="resp">${order.map(id=>{const t=ALL[id],a=r.answers[id];const done=!!a;
+    const head=`<div class="resp-head"><span class="mono">${D(id)}</span><b>${esc(t.subj)}</b><span class="muted">${esc(t.from)}${t.curve?" · arrived during the exercise":""}</span>${r.pri[id]?`<span class="pri ${r.pri[id]}">${r.pri[id]}</span>`:""}${done?"":`<span class="chip">Not reached</span>`}</div>`;
+    if(!done)return `<div class="resp-item">${head}</div>`;
+    const h=a.h==="o"?line("Handling",`Other: ${esc(a.ho||"(left blank)")}`,null,esc(F(top(t.h)[0],id))):(()=>{const o=t.h[a.h];return line("Handling",o?esc(F(o[0],id)):"—",o?o[1]:null,o&&o[1]===2?"":esc(F(top(t.h)[0],id)));})();
+    const qs=t.q.map((q,i)=>{if(q.cat==="w")return line("Written reply",`<div class="tbody" style="max-width:none;margin:0">${esc(a.w||"(not written)")}</div>`,null,"");
+      const o=a[i]!=null?q.o[a[i]]:null;const b=top(q.o);return line(esc(F(q.p,id)),o?esc(F(o.t,id)):"—",o?o.pts:null,o&&o.pts===2?"":esc(F(b.t,id)));}).join("");
+    return `<div class="resp-item">${head}${h}${qs}</div>`;}).join("")}</div>`;
+}
 let HIST=[], histUnsub=null, histTimer=null, histNote="Loading saved results…";
 // On our own Cloudflare Worker, results are saved through its /api/results endpoint (window.__SIGNAL_API__ is set by the Worker).
 const API_MODE=!!window.__SIGNAL_API__;
 const canStore=()=>API_MODE||!!db;
 const fmtDate=t=>new Date(t).toLocaleString("en-AU",{dateStyle:"medium",timeStyle:"short"});
-function historyView(){
+function historyBlock(title){
   const q=(S.histQ||"").trim().toLowerCase();
   const rows=HIST.map(h=>`<tr data-name="${esc((h.name||"").toLowerCase())}" ${q&&!(h.name||"").toLowerCase().includes(q)?"hidden":""}><td>${esc(h.name||"(no name)")}</td><td>${fmtDate(h.finishedAt)}</td><td class="mono">${Math.round(h.total)}</td><td class="mono">${h.flagsN}</td><td class="mono">${esc(h.trapsTxt)}</td><td><button class="btn" data-view="${esc(h._id)}">Open</button></td></tr>`).join("");
   const shown=HIST.filter(h=>!q||(h.name||"").toLowerCase().includes(q)).length;
-  return `<section class="panel"><div class="triage-head"><div><h2>Saved results</h2><p class="muted" id="histCount">${HIST.length?`${shown} of ${HIST.length} candidates, newest first`:""}</p></div><button class="btn" id="backStart">Back to setup</button></div>
+  return `<div class="triage-head"><div><h2>${title}</h2><p class="muted" id="histCount">${HIST.length?`${shown} of ${HIST.length} candidates, newest first`:""}</p></div>
+    ${API_MODE?`<button class="btn ghost" id="histRefresh">Refresh</button>`:""}</div>
    <div class="field" style="max-width:360px"><label for="histq">Search by candidate name</label><input id="histq" type="search" autocomplete="off" value="${esc(S.histQ||"")}" placeholder="e.g. Alex"></div>
-   ${HIST.length?`<div class="scroll"><table class="rtable"><thead><tr><th>Candidate</th><th>Finished</th><th>Score</th><th>Red flags</th><th>Accuracy checks</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="muted">${esc(histNote)}</p>`}
-   ${API_MODE?`<button class="btn ghost" id="histRefresh" style="align-self:flex-start">Refresh</button>`:""}</section>`;
+   ${HIST.length?`<div class="scroll"><table class="rtable"><thead><tr><th>Candidate</th><th>Finished</th><th>Score</th><th>Red flags</th><th>Accuracy checks</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="muted">${esc(histNote)}</p>`}`;
 }
+function historyView(){
+  return `<section class="panel">${historyBlock("Completed responses")}<button class="btn" id="backStart" style="align-self:flex-start">Back to assessor area</button></section>`;
+}
+
 const summarise=(id,r)=>({_id:id,name:r.name,finishedAt:r.finishedAt,total:r.total,flagsN:(r.flags||[]).length,trapsTxt:`${(r.traps||[]).length}/${(r.trapsAll||[]).length||7}`,_full:r});
 async function apiFetch(path,opts={}){
   const res=await fetch(path,{...opts,headers:{"content-type":"application/json","x-assessor-pin":S.pinPlain||"",...(opts.headers||{})}});
@@ -1063,18 +1084,24 @@ async function apiFetch(path,opts={}){
 async function loadApiHistory(){
   histNote="Loading saved results…";
   try{const d=await apiFetch("/api/results");HIST=d.results.map(x=>({_id:x.id,name:x.name,finishedAt:x.finishedAt,total:x.total,flagsN:x.flags,trapsTxt:x.traps}));
-    histNote="No candidates have finished yet. Results appear here as soon as someone completes the exercise.";}
+    histNote="No candidates have finished yet. Responses appear here as soon as someone completes the exercise.";}
   catch(e){histNote=e.message==="forbidden"?"The results store rejected your PIN. Check the ASSESSOR_PIN setting on the Worker.":"Saved results can't be reached right now. Try again shortly.";}
-  if(S.stage==="history")render();
+  rerenderHist();
 }
-function openHistory(){
-  S.stage="history"; render();
-  if(API_MODE){loadApiHistory();return;}
-  if(histUnsub||!db) return;
-  histTimer=setTimeout(()=>{histNote="Saved results can't be reached right now. Try again shortly.";if(S.stage==="history")render();},10000);
+let histLoaded=false;
+function ensureHistory(){
+  if(histLoaded)return; histLoaded=true;
+  if(API_MODE){setTimeout(loadApiHistory,0);return;}
+  if(!db)return;
+  histTimer=setTimeout(()=>{histNote="Saved results can't be reached right now. Try again shortly.";rerenderHist();},10000);
   histUnsub=db.collection("results").orderBy("finishedAt","desc").limit(500).onSnapshot(snap=>{
-    clearTimeout(histTimer);HIST=snap.docs.map(d=>summarise(d.id,d.data()));histNote="No candidates have finished yet. Results appear here as soon as someone completes the exercise.";if(S.stage==="history")render();
-  },()=>{clearTimeout(histTimer);histNote="You don't have access to saved results.";if(S.stage==="history")render();});
+    clearTimeout(histTimer);HIST=snap.docs.map(d=>summarise(d.id,d.data()));histNote="No candidates have finished yet. Responses appear here as soon as someone completes the exercise.";rerenderHist();
+  },()=>{clearTimeout(histTimer);histNote="You don't have access to saved results.";rerenderHist();});
+}
+function rerenderHist(){if((S.stage==="history"||S.stage==="setup")&&S.unlocked)render();}
+function openHistory(){
+  S.stage="history"; render(); ensureHistory();
+  if(API_MODE)loadApiHistory();
 }
 async function openSaved(id){
   const h=HIST.find(x=>x._id===id);if(!h)return;
