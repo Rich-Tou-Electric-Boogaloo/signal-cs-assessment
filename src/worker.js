@@ -8,8 +8,20 @@ const json = (data, status = 200) =>
     headers: { "content-type": "application/json", "cache-control": "no-store" },
   });
 
+const configuredPin = env => String(env.ASSESSOR_PIN ?? "").trim();
 const isAssessor = (req, env) =>
-  !!env.ASSESSOR_PIN && req.headers.get("x-assessor-pin") === env.ASSESSOR_PIN;
+  !!configuredPin(env) && String(req.headers.get("x-assessor-pin") || "").trim() === configuredPin(env);
+
+// Safe status check: says whether things are set up, never reveals the PIN.
+function health(env) {
+  const raw = env.ASSESSOR_PIN;
+  return json({
+    ok: true,
+    pinSet: !!configuredPin(env),
+    pinHadExtraSpaces: typeof raw === "string" && raw !== raw.trim(),
+    resultsStoreConnected: !!env.RESULTS,
+  });
+}
 
 async function saveResult(req, env) {
   if (!env.RESULTS) return json({ error: "storage_not_set_up" }, 500);
@@ -33,6 +45,7 @@ async function saveResult(req, env) {
 }
 
 async function readResults(req, env, url) {
+  if (!configuredPin(env)) return json({ error: "pin_not_set" }, 403);
   if (!isAssessor(req, env)) return json({ error: "forbidden" }, 403);
   if (!env.RESULTS) return json({ error: "storage_not_set_up" }, 500);
   const rest = url.pathname.slice("/api/results".length).replace(/^\//, "");
@@ -58,6 +71,7 @@ async function readResults(req, env, url) {
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
+    if (url.pathname === "/api/health") return health(env);
     if (url.pathname === "/api/results" && req.method === "POST") return saveResult(req, env);
     if (url.pathname.startsWith("/api/results") && req.method === "GET") return readResults(req, env, url);
     if (url.pathname.startsWith("/api/")) return json({ error: "not_found" }, 404);

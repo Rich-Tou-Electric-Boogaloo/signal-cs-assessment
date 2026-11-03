@@ -1078,14 +1078,17 @@ function historyView(){
 const summarise=(id,r)=>({_id:id,name:r.name,finishedAt:r.finishedAt,total:r.total,flagsN:(r.flags||[]).length,trapsTxt:`${(r.traps||[]).length}/${(r.trapsAll||[]).length||7}`,_full:r});
 async function apiFetch(path,opts={}){
   const res=await fetch(path,{...opts,headers:{"content-type":"application/json","x-assessor-pin":S.pinPlain||"",...(opts.headers||{})}});
-  if(!res.ok)throw new Error(res.status===403?"forbidden":"http "+res.status);
+  if(!res.ok){let code="";try{code=(await res.json()).error||"";}catch(e){}throw new Error(code||("http "+res.status));}
   return res.json();
 }
 async function loadApiHistory(){
   histNote="Loading saved results…";
   try{const d=await apiFetch("/api/results");HIST=d.results.map(x=>({_id:x.id,name:x.name,finishedAt:x.finishedAt,total:x.total,flagsN:x.flags,trapsTxt:x.traps}));
     histNote="No candidates have finished yet. Responses appear here as soon as someone completes the exercise.";}
-  catch(e){histNote=e.message==="forbidden"?"The results store rejected your PIN. Check the ASSESSOR_PIN setting on the Worker.":"Saved results can't be reached right now. Try again shortly.";}
+  catch(e){histNote=e.message==="pin_not_set"?"The Worker has no ASSESSOR_PIN secret yet. Add it under the Worker's Settings → Variables and Secrets, then choose Refresh."
+      :e.message==="forbidden"?"The Worker's ASSESSOR_PIN secret doesn't match the PIN you unlocked with. Check the secret's value is 731946, then choose Refresh."
+      :e.message==="storage_not_set_up"?"The results store isn't connected to the Worker yet."
+      :"Saved results can't be reached right now. Try again shortly.";}
   rerenderHist();
 }
 let histLoaded=false;
