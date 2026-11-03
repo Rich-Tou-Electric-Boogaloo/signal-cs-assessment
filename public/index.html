@@ -1,0 +1,1248 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<script>window.__SIGNAL_API__=true;</script>
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Signal Support Desk Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: an agent workspace — dark nav bar on top, queue on the left, ticket in the middle, reference panel on the right; stacks on phones. */
+:root{
+  /* Signal brand palette: Insignia #0a172e (ink, header), Cobalt #0046b4 (actions), Star #ff5a00 (highlights), White. Square corners, Montserrat. */
+  --bg:#f8fafc; --surface:#ffffff; --surface-2:#f2f5f8; --line:#e2e2e2; --fg:#1e1e1e; --muted:#475569;
+  --nav:#0a172e; --nav-fg:#ffffff; --ink:#212934;
+  --accent:#0046b4; --on-accent:#ffffff; --accent-ink:#0046b4; --accent-soft:#e6eefa; --hot:#ff5a00; --hot-ink:#c94600;
+  --urgent:#cc3340; --urgent-soft:#fbe9ea; --high:#c94600; --high-soft:#fff1e8; --normal:#0046b4; --low:#475569;
+  --ok:#0a7d4f; --ok-soft:#e1f4ec; --pick:#e6eefa; --r:2px;
+  --f-body:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a172e; --surface:#11213d; --surface-2:#172a4a; --line:#26395c; --fg:#eef2f7; --muted:#a3b1c6;
+  --nav:#060f1f; --nav-fg:#ffffff; --ink:#eef2f7;
+  --accent:#0046b4; --on-accent:#ffffff; --accent-ink:#7fa9f2; --accent-soft:#13305e; --hot:#ff5a00; --hot-ink:#ff8f52;
+  --urgent:#f0707a; --urgent-soft:#3a1d27; --high:#ff8f52; --high-soft:#3a2516; --normal:#7fa9f2; --low:#a3b1c6;
+  --ok:#3fc58e; --ok-soft:#123a32; --pick:#13305e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a172e; --surface:#11213d; --surface-2:#172a4a; --line:#26395c; --fg:#eef2f7; --muted:#a3b1c6;
+  --nav:#060f1f; --nav-fg:#ffffff; --ink:#eef2f7;
+  --accent:#0046b4; --on-accent:#ffffff; --accent-ink:#7fa9f2; --accent-soft:#13305e; --hot:#ff5a00; --hot-ink:#ff8f52;
+  --urgent:#f0707a; --urgent-soft:#3a1d27; --high:#ff8f52; --high-soft:#3a2516; --normal:#7fa9f2; --low:#a3b1c6;
+  --ok:#3fc58e; --ok-soft:#123a32; --pick:#13305e; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.55}
+h1,h2,h3{font-weight:700;color:var(--ink);letter-spacing:-.01em}
+h1 em,h2 em{font-style:normal;color:var(--hot-ink)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--nav)}
+*{box-sizing:border-box}
+button,select,textarea,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent-ink);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-size:.85em;font-variant-numeric:tabular-nums}
+
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--nav);color:var(--nav-fg);
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{display:inline-flex;align-items:center}
+.logo-svg{display:block;height:40px;width:auto}
+.wordmark{font-weight:700;font-size:17px;letter-spacing:-.01em;line-height:1;white-space:nowrap}
+
+.brand small{display:block;font-weight:400;opacity:.75;font-size:12px;border-left:1px solid rgba(255,255,255,.3);padding-left:12px}
+.topbar .spacer{flex:1}
+.stage{font-size:13px;opacity:.85}
+.timer{font-family:var(--f-mono);font-size:18px;background:rgba(255,255,255,.1);padding:4px 10px;border-radius:var(--r);font-variant-numeric:tabular-nums}
+.timer.warn{background:#cc3340;color:#fff}
+.tb-btn{background:transparent;border:1px solid rgba(255,255,255,.35);color:var(--nav-fg);border-radius:var(--r);padding:5px 10px;font-size:13px}
+.tb-btn:hover{background:rgba(255,255,255,.1)}
+
+.wrap{padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1320px;margin:0 auto}
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:28px}
+h2{font-size:20px}
+h3{font-size:16px}
+p{margin:0}
+.muted{color:var(--muted)}
+.label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;color:var(--hot-ink)}
+.eyebrow::after{content:"";display:block;width:32px;height:3px;background:var(--hot);margin-top:8px}
+.brief{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.brief .panel h3{display:flex;gap:10px;align-items:baseline}
+.brief .num{font-family:var(--f-mono);color:var(--hot-ink);font-size:14px}
+.brief ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.wide{grid-column:1/-1}
+.ack{display:flex;gap:10px;align-items:flex-start;font-weight:600}
+.ack input{margin-top:4px;accent-color:var(--accent-ink);width:18px;height:18px}
+.startbar{background:var(--nav);color:var(--nav-fg);padding:20px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.startbar h2{color:#fff}
+.linkish{background:none;border:0;padding:0;color:var(--muted);text-decoration:underline;font-size:13px}
+.pinrow{display:flex;gap:8px;flex-wrap:wrap}
+.pinrow input{border:1px solid var(--line);border-radius:var(--r);padding:9px 10px;background:var(--surface-2);font-family:var(--f-mono);letter-spacing:.2em;width:160px}
+.codebox{width:100%;font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:var(--r);padding:10px;background:var(--surface-2);word-break:break-all;resize:vertical}
+.err{color:var(--urgent);font-weight:600;font-size:14px}
+
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:8px 14px;font-weight:600}
+.btn{text-transform:none}
+.btn:hover{border-color:var(--accent-ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:not(:disabled):hover{background:var(--nav);border-color:var(--nav);color:#fff}
+.btn.primary:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent}
+
+/* start */
+.intro{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+.intro .wide{grid-column:1/-1}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;max-width:62ch}
+.field{display:flex;flex-direction:column;gap:6px}
+.field input,.field select{border:1px solid var(--line);border-radius:var(--r);padding:9px 10px;background:var(--surface-2);color:var(--fg)}
+.field input::placeholder{color:var(--muted);opacity:1}
+
+/* pills */
+.pri{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:1px 8px;border-radius:var(--r);border:1px solid currentColor}
+.pri.Urgent{color:var(--urgent)} .pri.High{color:var(--high)} .pri.Normal{color:var(--normal)} .pri.Low{color:var(--low)}
+.chip{font-size:12px;padding:1px 8px;border-radius:var(--r);background:var(--surface-2);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.chip.new{background:var(--hot);border-color:var(--hot);color:#fff;font-weight:700}
+.chip.done{background:var(--ok-soft);border-color:transparent;color:var(--ok);font-weight:600}
+
+/* triage */
+.triage-head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.tlist{display:flex;flex-direction:column;gap:8px}
+.trow{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;padding:12px;align-items:start}
+.rank{font-family:var(--f-mono);font-size:20px;text-align:center;color:var(--accent-ink);padding-top:2px}
+.tmain{min-width:0;display:flex;flex-direction:column;gap:4px}
+.tmeta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)}
+.tsubj{font-weight:600;background:none;border:0;padding:0;text-align:left}
+
+.tbody{background:var(--surface-2);border-left:3px solid var(--line);padding:10px 12px;border-radius:0 6px 6px 0;margin-top:6px;max-width:75ch;white-space:pre-wrap}
+.tctrl{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.tctrl select{border:1px solid var(--line);border-radius:var(--r);padding:6px 8px;background:var(--surface-2)}
+.tctrl select.unset{border-color:var(--high)}
+.moves{display:flex;gap:6px}
+.moves button{flex:1;border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r);padding:4px 10px}
+.moves button:disabled{opacity:.35;cursor:default}
+
+/* work */
+.desk{display:grid;grid-template-columns:260px minmax(0,1fr) 340px;gap:16px;align-items:start}
+.queue{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.queue h3{padding:12px 14px;border-bottom:1px solid var(--line);font-size:14px;display:flex;justify-content:space-between}
+.qitem{display:flex;flex-direction:column;gap:3px;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:var(--surface);padding:10px 14px}
+.qitem:hover{background:var(--surface-2)}
+.qitem.active{background:var(--pick);box-shadow:inset 3px 0 0 var(--accent-ink)}
+.qitem .s{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qitem .m{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.ticket{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);min-width:0}
+.thead{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.convo{padding:16px 18px;display:flex;gap:12px;border-bottom:1px solid var(--line)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;flex:none}
+.msg{min-width:0;display:flex;flex-direction:column;gap:6px}
+.msg .who{font-size:14px} .msg .who b{font-weight:700}
+.msg .text{white-space:pre-wrap;max-width:70ch}
+.quiz{padding:18px;display:flex;flex-direction:column;gap:18px}
+.q{display:flex;flex-direction:column;gap:8px}
+.q legend{font-weight:700;padding:0;margin-bottom:4px}
+.q fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;background:var(--surface-2);cursor:pointer}
+.opt:hover{border-color:var(--accent-ink)}
+.opt input{margin-top:4px;accent-color:var(--accent)}
+.opt.sel{border-color:var(--accent-ink);background:var(--pick)}
+.locked .opt{cursor:default}
+.hsel,.hother{border:1px solid var(--line);border-radius:var(--r);padding:9px 10px;background:var(--surface-2);max-width:100%}
+.hother{width:100%}
+.q textarea{border:1px solid var(--line);border-radius:var(--r);padding:10px;background:var(--surface-2);min-height:140px;resize:vertical}
+.qfoot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.side{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);min-width:0;position:sticky;top:calc(env(safe-area-inset-top,0px) + 70px)}
+.tabs{display:flex;border-bottom:1px solid var(--line)}
+.tabs button{flex:1;border:0;background:none;padding:10px 6px;font-size:14px;white-space:nowrap;font-weight:600;color:var(--muted);border-bottom:2px solid transparent}
+.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--hot)}
+.sidebody{padding:14px;display:flex;flex-direction:column;gap:12px;max-height:70vh;overflow:auto;font-size:14px}
+.order{border:1px solid var(--line);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:3px}
+.order.hit{border-color:var(--accent-ink);background:var(--pick)}
+.order b{font-family:var(--f-mono);font-size:13px}
+.pol{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
+.faq{display:flex;flex-direction:column;gap:10px}
+.faq p{margin:2px 0 0;color:var(--muted)}
+.sla{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+.sla th,.sla td{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left}
+.empty{padding:40px 18px;text-align:center;color:var(--muted)}
+
+/* modal + toast */
+.scrim{position:fixed;inset:0;background:rgba(5,20,22,.55);z-index:20;display:grid;place-items:center;padding:16px}
+.modal{background:var(--surface);color:var(--fg);border-radius:var(--r);max-width:620px;width:100%;max-height:90vh;overflow:auto;border-top:6px solid var(--urgent)}
+.modal .mhead{padding:16px 20px;display:flex;flex-direction:column;gap:4px;border-bottom:1px solid var(--line)}
+.note{background:var(--high-soft);border:1px dashed var(--high);border-radius:var(--r);padding:12px 14px;white-space:pre-wrap}
+.toast{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:15;background:var(--nav);color:var(--nav-fg);padding:12px 16px;border-radius:var(--r);max-width:340px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+
+/* results */
+.score-hero{display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+.big{font-size:56px;font-weight:700;font-family:var(--f-mono);line-height:1}
+.bars{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.bar{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:6px}
+.track{height:8px;background:var(--surface-2);border-radius:var(--r);overflow:hidden;border:1px solid var(--line)}
+.fill{height:100%;background:var(--accent-ink)}
+.flag{background:var(--urgent-soft);color:var(--urgent);border-radius:var(--r);padding:8px 12px;font-weight:600}
+.rtable{width:100%;border-collapse:collapse;font-size:14px}
+.rtable th,.rtable td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+.rtable td.good{color:var(--ok);font-weight:600} .rtable td.bad{color:var(--urgent);font-weight:600}
+.scroll{overflow-x:auto}
+
+@media (max-width:1080px){.desk{grid-template-columns:220px minmax(0,1fr)}.side{grid-column:1/-1;position:static}}
+@media (max-width:760px){.brief{grid-template-columns:minmax(0,1fr)}.brand small{display:none}.intro,.desk{grid-template-columns:minmax(0,1fr)}.bars{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .trow{grid-template-columns:32px minmax(0,1fr)}.tctrl{grid-column:2}.queue{max-height:260px;overflow:auto}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><span class="logo"><svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 93.8843 47.2806" role="img" aria-label="The Signal Group"><path fill="#ff5a00" fill-rule="nonzero" d="M93.8271 27.3089 C93.0645 27.1979 92.3018 27.0868 91.5392 26.9763 C91.5145 26.9727 91.4897 26.9691 91.465 26.9655 C91.1292 26.284 90.7934 25.6026 90.4576 24.9211 C90.4419 24.8897 90.4263 24.8577 90.4106 24.8258 C90.3949 24.7937 90.3684 24.7829 90.3419 24.7853 C90.3159 24.7829 90.2888 24.7937 90.2731 24.8258 C89.9325 25.5175 89.5913 26.2098 89.25 26.9015 C89.2398 26.9226 89.2289 26.9444 89.2187 26.9655 C88.4663 27.0747 87.7145 27.184 86.9621 27.2938 C86.9271 27.2986 86.8916 27.3041 86.8566 27.3089 C86.7957 27.3179 86.7824 27.4037 86.8216 27.4417 C87.3733 27.9807 87.9255 28.5191 88.4771 29.0575 L88.5248 29.104 C88.3976 29.8482 88.2698 30.5924 88.1425 31.3366 C88.1365 31.3716 88.1305 31.4066 88.1245 31.4417 C88.1124 31.5099 88.1757 31.566 88.2408 31.531 C88.9233 31.1724 89.6051 30.8133 90.2876 30.4542 C90.3057 30.4445 90.3238 30.4349 90.3419 30.4252 C91.0105 30.7777 91.6796 31.1296 92.3483 31.4815 C92.3796 31.4984 92.4116 31.5147 92.4429 31.531 C92.508 31.5654 92.5713 31.5099 92.5593 31.4417 C92.429 30.6811 92.2988 29.9206 92.1686 29.1601 C92.1656 29.1414 92.162 29.1227 92.1589 29.104 C92.7015 28.5746 93.2435 28.0453 93.7861 27.5166 C93.8114 27.4918 93.8368 27.4665 93.8621 27.4417 C93.9013 27.4037 93.888 27.3179 93.8271 27.3089 Z"/><path fill="#ffffff" fill-rule="nonzero" d="M80.2256 31.4757 L84.6465 31.4757 L84.6465 10.4238 L80.2256 10.4238 L80.2256 31.4757 Z M69.6842 28.7239 C68.9089 28.7239 68.3 28.5585 67.8563 28.2272 C67.4119 27.8964 67.1901 27.4473 67.1901 26.88 C67.1901 25.6879 68.0968 25.0922 69.9109 25.0922 L72.9428 25.0922 L72.9428 26.6524 C72.6974 27.3339 72.2814 27.8493 71.696 28.1988 C71.11 28.5489 70.4396 28.7239 69.6842 28.7239 M70.0242 15.9852 C68.7956 15.9852 67.6012 16.1458 66.4395 16.4675 C65.2771 16.7892 64.2806 17.2431 63.4492 17.8292 L65.0366 20.9214 C65.584 20.4868 66.2502 20.1415 67.0345 19.8862 C67.8183 19.6309 68.6165 19.5029 69.4292 19.5029 C70.6 19.5029 71.4784 19.7631 72.0644 20.2834 C72.6498 20.8037 72.9428 21.5461 72.9428 22.5106 L69.4292 22.5106 C67.1997 22.5106 65.5508 22.9174 64.4837 23.7305 C63.416 24.5441 62.8825 25.6595 62.8825 27.0786 C62.8825 27.9676 63.1092 28.762 63.5625 29.4615 C64.0165 30.1617 64.6724 30.7097 65.5322 31.1069 C66.3919 31.504 67.4071 31.7026 68.5785 31.7026 C70.846 31.7026 72.3948 30.9934 73.2261 29.575 L73.2261 31.4757 L77.3637 31.4757 L77.3637 22.7659 C77.3637 20.4958 76.7307 18.7986 75.4652 17.6729 C74.1992 16.5478 72.3857 15.9852 70.0242 15.9852 M54.6929 15.9852 C53.6535 15.9852 52.6998 16.1603 51.831 16.5098 C50.9617 16.8599 50.234 17.3566 49.6486 17.9994 L49.6486 16.2122 L45.426 16.2122 L45.426 31.4757 L49.8469 31.4757 L49.8469 23.929 C49.8469 22.5674 50.1773 21.5413 50.8393 20.8508 C51.5 20.1602 52.3881 19.815 53.5028 19.815 C54.5036 19.815 55.2693 20.1132 55.798 20.7089 C56.3267 21.3046 56.5914 22.2082 56.5914 23.4184 L56.5914 31.4757 L61.0123 31.4757 L61.0123 22.7376 C61.0123 20.5055 60.4318 18.8221 59.2694 17.6874 C58.1076 16.5526 56.5817 15.9852 54.6929 15.9852 M34.0912 27.1069 C32.9192 27.1069 31.9558 26.7617 31.2004 26.0712 C30.4444 25.3807 30.067 24.4777 30.067 23.3617 C30.067 22.2456 30.4444 21.3427 31.2004 20.6522 C31.9558 19.9617 32.9192 19.6164 34.0912 19.6164 C35.262 19.6164 36.2206 19.9617 36.9676 20.6522 C37.7133 21.3427 38.0865 22.2456 38.0865 23.3617 C38.0865 24.4777 37.7133 25.3807 36.9676 26.0712 C36.2206 26.7617 35.262 27.1069 34.0912 27.1069 M38.2565 16.2122 L38.2565 18.1696 C37.1038 16.7132 35.423 15.9852 33.2122 15.9852 C31.8141 15.9852 30.5342 16.2925 29.3724 16.9069 C28.2107 17.522 27.2895 18.3875 26.6094 19.5029 C25.9294 20.6196 25.5894 21.9052 25.5894 23.3617 C25.5894 24.8181 25.9294 26.1044 26.6094 27.2204 C27.2895 28.3364 28.2107 29.202 29.3724 29.8164 C30.5342 30.4309 31.8141 30.7381 33.2122 30.7381 C35.2717 30.7381 36.8771 30.1049 38.0298 28.8374 L38.0298 29.4899 C38.0298 30.8896 37.6657 31.9344 36.9392 32.6249 C36.2116 33.3154 35.0829 33.6607 33.5522 33.6607 C32.5701 33.6607 31.5874 33.5043 30.6053 33.1923 C29.6226 32.8802 28.81 32.4589 28.1679 31.9296 L26.4111 35.1075 C27.2798 35.7883 28.3759 36.3086 29.6986 36.6677 C31.0207 37.0269 32.4188 37.2067 33.8923 37.2067 C36.6884 37.2067 38.8136 36.5259 40.2689 35.1642 C41.7231 33.8025 42.4508 31.7214 42.4508 28.9225 L42.4508 16.2122 L38.2565 16.2122 Z M20.9701 14.084 C21.7822 14.084 22.4441 13.8431 22.9542 13.3609 C23.4642 12.878 23.7192 12.2684 23.7192 11.5308 C23.7192 10.8499 23.4642 10.282 22.9542 9.82806 C22.4441 9.37415 21.7822 9.14722 20.9701 9.14722 C20.158 9.14722 19.4966 9.38381 18.9866 9.85643 C18.4765 10.3296 18.2215 10.9163 18.2215 11.6159 C18.2215 12.3155 18.4765 12.9021 18.9866 13.3747 C19.4966 13.848 20.158 14.084 20.9701 14.084 M18.7599 31.4757 L23.1808 31.4757 L23.1808 16.2116 L18.7599 16.2116 L18.7599 31.4757 Z M8.07682 31.8161 C9.89029 31.8161 11.4301 31.5421 12.6955 30.9934 C13.9616 30.4454 14.9105 29.7029 15.5441 28.7662 C16.1765 27.83 16.4931 26.7943 16.4931 25.6595 C16.4931 24.3359 16.1482 23.2862 15.4591 22.5106 C14.7688 21.735 13.9429 21.1676 12.9795 20.8079 C12.0155 20.4488 10.7783 20.0896 9.26691 19.7299 C7.81155 19.4088 6.73058 19.0823 6.02219 18.7515 C5.31381 18.4207 4.95931 17.9143 4.95931 17.2334 C4.95931 16.5526 5.26618 16.004 5.88052 15.5875 C6.49425 15.1722 7.44319 14.9634 8.72853 14.9634 C10.5607 14.9634 12.3935 15.4843 14.2262 16.5242 L15.643 13.0343 C14.7363 12.4669 13.6782 12.0318 12.4688 11.7294 C11.26 11.427 10.0223 11.2755 8.75687 11.2755 C6.9428 11.2755 5.40786 11.5495 4.15145 12.0981 C2.89504 12.6468 1.95515 13.3892 1.33177 14.3254 C0.708384 15.2616 0.396695 16.307 0.396695 17.4604 C0.396695 18.7847 0.741543 19.8434 1.43124 20.6377 C2.12034 21.4326 2.94749 22.0096 3.9109 22.3688 C4.87431 22.7279 6.11142 23.0877 7.62345 23.4468 C8.60555 23.6737 9.38447 23.882 9.96083 24.0709 C10.5372 24.2604 11.0098 24.5109 11.3782 24.823 C11.7466 25.135 11.9311 25.5273 11.9311 26 C11.9311 26.6434 11.6188 27.1588 10.9954 27.5463 C10.372 27.9344 9.40858 28.1282 8.10516 28.1282 C6.93315 28.1282 5.76235 27.9393 4.59095 27.5608 C3.41955 27.1824 2.40912 26.6814 1.55845 26.0567 L0 29.5183 C0.888046 30.1991 2.06367 30.7526 3.52807 31.1781 C4.99187 31.6037 6.50812 31.8161 8.07682 31.8161"/><path fill="#ffffff" fill-rule="nonzero" d="M81.056 43.9681 C80.4929 43.9681 79.9882 43.8366 79.5427 43.5734 C79.0966 43.3102 78.7445 42.9438 78.4865 42.4737 C78.2278 42.0041 78.0994 41.4687 78.0994 40.8669 C78.0994 40.2657 78.2278 39.7297 78.4865 39.2601 C78.7445 38.79 79.0966 38.4236 79.5427 38.1604 C79.9882 37.8972 80.4929 37.7657 81.056 37.7657 C81.619 37.7657 82.1261 37.8972 82.5764 38.1604 C83.0274 38.4236 83.3813 38.79 83.6393 39.2601 C83.8973 39.7297 84.027 40.2657 84.027 40.8669 C84.027 41.4687 83.8973 42.0041 83.6393 42.4737 C83.3813 42.9438 83.0274 43.3102 82.5764 43.5734 C82.1261 43.8366 81.619 43.9681 81.056 43.9681 M81.0982 37.1313 C80.441 37.1313 79.8472 37.2888 79.3172 37.6039 C78.7867 37.9184 78.3761 38.3578 78.0849 38.9215 L78.0849 37.188 L77.4091 37.188 L77.4091 47.2806 L78.1133 47.2806 L78.1133 42.8684 C78.4039 43.4134 78.8126 43.8389 79.3383 44.1444 C79.8641 44.4498 80.4507 44.6025 81.0982 44.6025 C81.783 44.6025 82.4028 44.445 82.9568 44.1299 C83.5103 43.8154 83.9444 43.3736 84.2591 42.805 C84.5732 42.2364 84.7305 41.5906 84.7305 40.8669 C84.7305 40.1432 84.5732 39.4998 84.2591 38.9354 C83.9444 38.3717 83.5103 37.9304 82.9568 37.6106 C82.4028 37.2913 81.783 37.1313 81.0982 37.1313 M73.9317 37.188 L73.9317 41.1065 C73.9317 41.9805 73.6899 42.6758 73.2064 43.1925 C72.7229 43.7098 72.0682 43.9681 71.2422 43.9681 C70.473 43.9681 69.8767 43.752 69.4541 43.3199 C69.0321 42.8877 68.8211 42.2582 68.8211 41.4306 L68.8211 37.188 L68.1169 37.188 L68.1169 41.4874 C68.1169 42.493 68.3888 43.2631 68.9332 43.7991 C69.4776 44.3345 70.2288 44.6025 71.1862 44.6025 C71.8337 44.6025 72.3973 44.4594 72.8754 44.1728 C73.3541 43.886 73.7159 43.4841 73.96 42.9674 L73.96 44.5458 L74.6359 44.5458 L74.6359 37.188 L73.9317 37.188 Z M62.5553 43.9681 C61.9922 43.9681 61.4876 43.8366 61.0415 43.5734 C60.5959 43.3102 60.2438 42.9438 59.9858 42.4737 C59.7278 42.0041 59.5988 41.4687 59.5988 40.8669 C59.5988 40.2657 59.7278 39.7297 59.9858 39.2601 C60.2438 38.79 60.5959 38.4236 61.0415 38.1604 C61.4876 37.8972 61.9922 37.7657 62.5553 37.7657 C63.1184 37.7657 63.623 37.8972 64.0691 38.1604 C64.5147 38.4236 64.8667 38.79 65.1248 39.2601 C65.3828 39.7297 65.5118 40.2657 65.5118 40.8669 C65.5118 41.4687 65.3828 42.0041 65.1248 42.4737 C64.8667 42.9438 64.5147 43.3102 64.0691 43.5734 C63.623 43.8366 63.1184 43.9681 62.5553 43.9681 M62.5553 44.6025 C63.2498 44.6025 63.8762 44.4425 64.4351 44.1232 C64.9933 43.804 65.4322 43.3597 65.7518 42.7911 C66.0707 42.2226 66.2305 41.5815 66.2305 40.8669 C66.2305 40.1529 66.0707 39.5118 65.7518 38.9427 C65.4322 38.3741 64.9933 37.9304 64.4351 37.6106 C63.8762 37.2913 63.2498 37.1313 62.5553 37.1313 C61.8608 37.1313 61.2338 37.2913 60.6755 37.6106 C60.1172 37.9304 59.6783 38.3741 59.3594 38.9427 C59.0399 39.5118 58.8807 40.1529 58.8807 40.8669 C58.8807 41.5815 59.0399 42.2226 59.3594 42.7911 C59.6783 43.3597 60.1172 43.804 60.6755 44.1232 C61.2338 44.4425 61.8608 44.6025 62.5553 44.6025 M55.22 38.7948 L55.22 37.188 L54.5442 37.188 L54.5442 44.5458 L55.2478 44.5458 L55.2478 40.7118 C55.2478 39.8004 55.4781 39.0887 55.938 38.5763 C56.3974 38.0645 57.0359 37.8079 57.8528 37.8079 L58.0216 37.8224 L58.0216 37.1313 C57.3361 37.1313 56.7544 37.2749 56.2757 37.561 C55.797 37.8484 55.4449 38.2594 55.22 38.7948 M51.1367 43.0519 C50.3951 43.6531 49.4613 43.9543 48.3351 43.9543 C47.4899 43.9543 46.7296 43.7635 46.0538 43.3832 C45.378 43.0024 44.845 42.4809 44.4562 41.8188 C44.0661 41.156 43.8714 40.4209 43.8714 39.6127 C43.8714 38.7948 44.0637 38.0548 44.4489 37.3921 C44.8336 36.7299 45.3665 36.2108 46.0472 35.8348 C46.7272 35.4588 47.4899 35.271 48.3351 35.271 C48.9543 35.271 49.5198 35.3622 50.0316 35.5457 C50.5429 35.7286 51.0053 36.0274 51.4182 36.4408 L51.8686 35.9616 C51.4369 35.5197 50.9185 35.1841 50.3132 34.9536 C49.7079 34.7236 49.0435 34.6083 48.3206 34.6083 C47.3349 34.6083 46.4505 34.8244 45.6667 35.2566 C44.883 35.6887 44.2681 36.2857 43.8225 37.0468 C43.3764 37.8079 43.1533 38.6632 43.1533 39.6127 C43.1533 40.5615 43.3764 41.4168 43.8225 42.1779 C44.2681 42.939 44.883 43.536 45.6667 43.9681 C46.4505 44.4003 47.3301 44.6164 48.3068 44.6164 C48.9916 44.6164 49.6415 44.5083 50.2565 44.2923 C50.8714 44.0762 51.3947 43.7617 51.8264 43.3476 L51.8264 39.6549 L51.1367 39.6549 L51.1367 43.0519 Z"/><path fill="#ffffff" fill-rule="nonzero" d="M45.9489 3.66495 C46.465 3.66495 46.9298 3.78266 47.3428 4.01747 C47.7558 4.25225 48.0892 4.57637 48.3424 4.98983 C48.5962 5.40328 48.7367 5.87351 48.765 6.3998 L43.1329 6.3998 C43.1703 5.87351 43.3137 5.40089 43.5621 4.98261 C43.8111 4.56492 44.1421 4.2408 44.5551 4.01022 C44.9681 3.78026 45.4329 3.66495 45.9489 3.66495 M49.4547 6.7517 C49.4547 6.03767 49.3022 5.39908 48.9971 4.83473 C48.6921 4.27097 48.2743 3.83217 47.7443 3.51708 C47.2138 3.20202 46.6151 3.04449 45.9489 3.04449 C45.2822 3.04449 44.6817 3.20445 44.1469 3.52374 C43.6116 3.84363 43.1914 4.28725 42.8863 4.85584 C42.5812 5.42443 42.4293 6.06603 42.4293 6.78007 C42.4293 7.50379 42.5909 8.1472 42.9146 8.71155 C43.2384 9.27531 43.6869 9.71713 44.2591 10.0364 C44.8318 10.3557 45.4841 10.5157 46.2166 10.5157 C46.7797 10.5157 47.303 10.4125 47.7865 10.2054 C48.2694 9.999 48.671 9.70266 48.9905 9.31757 L48.5817 8.8522 C48.3092 9.1908 47.9692 9.44673 47.5611 9.62054 C47.1529 9.79439 46.7092 9.88129 46.2305 9.88129 C45.6487 9.88129 45.1254 9.75939 44.6606 9.51492 C44.1958 9.27049 43.8274 8.92522 43.5555 8.47857 C43.283 8.03252 43.1377 7.5225 43.119 6.94909 L49.4408 6.94909 L49.4547 6.7517 Z M37.7552 3.04449 C37.0787 3.04449 36.4921 3.18331 35.9948 3.46034 C35.4974 3.73801 35.1218 4.13035 34.8686 4.63734 L34.8686 0 L34.1644 0 L34.1644 10.4595 L34.8686 10.4595 L34.8686 6.54046 C34.8686 5.66647 35.1169 4.97111 35.6149 4.45447 C36.1123 3.93779 36.7924 3.67884 37.6563 3.67884 C38.4069 3.67884 38.9911 3.89553 39.4089 4.3277 C39.8267 4.75987 40.0359 5.38943 40.0359 6.21634 L40.0359 10.4595 L40.7394 10.4595 L40.7394 6.1602 C40.7394 5.15461 40.4724 4.38385 39.937 3.84845 C39.4022 3.31247 38.6746 3.04449 37.7552 3.04449 M28.7722 10.4595 L29.4902 10.4595 L29.4902 1.24037 L33.0382 1.24037 L33.0382 0.592129 L25.2242 0.592129 L25.2242 1.24037 L28.7722 1.24037 L28.7722 10.4595 Z"/></svg></span><small>Support Desk Challenge</small></div>
+  <span class="stage" id="stageLabel">Not started</span>
+  <span class="spacer"></span>
+  <span id="whoLabel" class="stage"></span>
+  <span class="timer" id="timer" hidden>25:00</span>
+  <button class="tb-btn" id="finishBtn" hidden>Finish</button>
+</header>
+
+<main class="wrap" id="app"></main>
+<div id="layer"></div>
+
+<script>
+// ---------- content ----------
+// ---------- ticket pool ----------
+// Each candidate gets one ticket from every theme (slot), so the queue is different each time
+// but the difficulty stays comparable. Text can use {#parent} (the linked ticket's number) and {first} (customer's first name).
+// w = how early the ideal agent handles it (higher = sooner). pri = ideal Zendesk priority; alt = also acceptable.
+// Question cats: a = accuracy trap (needs the order lookup or policies), j = judgement, w = written reply, c = curveball.
+const SLOTS=["safety","security","media","deadline","dup","wismo","complaint","refund","privacy","sales","help","misc"];
+const POOL = [
+ // ===== SAFETY =====
+ {id:4101,slot:"safety",w:100,pri:"Urgent",subj:"Magnet came off badge, my son nearly swallowed it",from:"Sam Kelly",org:"Wattle Grove Childcare",ch:"Email",brand:"Name Badges Australia",order:"SO-23274",
+  body:"One of the magnetic backs on the badges we bought came apart this afternoon and the small magnet fell on the floor. One of the toddlers picked it up and had it in his mouth before an educator grabbed it. He's fine but I'm really shaken. We've got 25 of these being worn around small children every day. Is this normal?? What should we do?",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+   {t:"Reply that the magnets meet Australian standards, so the badges are safe to keep using.",pts:0,flag:"Told a customer a product involved in a safety incident was safe"},
+   {t:"Escalate to Jamie Hassard now. Reply to Sam: sorry, glad he's OK, please stop using all 25 badges and keep them, and someone will call today.",pts:2},
+   {t:"Offer a full refund and replacement badges with pin backs, then close the ticket.",pts:0,flag:"Promised a refund/replacement without approval"},
+   {t:"Tag it badgeproduction and leave it for the production team.",pts:0}]}],
+  h:[["Escalate to Jamie Hassard (product safety)",2],["Call Sam to discuss",1],["Reply by email",0],["Refund the order",0]],
+  follow:{id:4201,subj:"Still no reply about the magnet",from:"Sam Kelly",org:"Wattle Grove Childcare",ch:"Email",brand:"Name Badges Australia",order:"SO-23274",
+   body:"Still haven't heard anything from you. We took Oliver to the GP to be safe. A couple of the parents have now posted about it in our community Facebook group and someone tagged Name Badges Australia. I need to know today what you're doing about this.",
+   q:{cat:"c",p:"What do you do with this ticket?",o:[
+    {t:"Reply that the badges meet safety standards and the posts are inaccurate.",pts:0,flag:"Told a customer a product involved in a safety incident was safe"},
+    {t:"Link it to {#parent}, update Jamie Hassard with the GP visit and Facebook posts, loop in Mel Liu and Rich, and call or reply to Sam personally today.",pts:2},
+    {t:"Ask Sam to take the Facebook posts down while we look into it.",pts:0},
+    {t:"Log it as a new ticket at Normal priority.",pts:0}]},
+   h:[["Escalate to Jamie Hassard, Mel Liu and Rich",2],["Call Sam to discuss",1],["Reply by email",0],["Refund the order",0]]}},
+ {id:4102,slot:"safety",w:100,pri:"Urgent",subj:"Lanyard clip didn't release, staff member nearly hurt",from:"Rob Castellano",org:"Pacific Freight Logistics",ch:"Email",brand:"Name Badges Australia",order:"SO-23279",
+  body:"One of our forklift operators had his lanyard caught on a machine guard this morning and the breakaway clip didn't release like it's meant to. He got it off in time but it could have been really serious. We bought 200 of these from you last month specifically because they were safety breakaway lanyards. What's going on?",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+   {t:"Reply that breakaway clips sometimes stick when new, and they loosen with use.",pts:0,flag:"Gave technical advice on a safety incident"},
+   {t:"Escalate to Jamie Hassard now. Reply to Rob: glad he's OK, please stop using all 200 lanyards and keep them, including the one involved, and someone will call today.",pts:2},
+   {t:"Send replacement lanyards by express and close the ticket.",pts:0,flag:"Promised a replacement without approval"},
+   {t:"Forward to the production team to check the batch.",pts:1}]}],
+  h:[["Escalate to Jamie Hassard (product safety)",2],["Call Rob to discuss",1],["Reply by email",0],["Send replacements",0]],
+  follow:{id:4202,subj:"Re: Lanyard clip — WorkSafe involved",from:"Rob Castellano",org:"Pacific Freight Logistics",ch:"Email",brand:"Name Badges Australia",order:"SO-23279",
+   body:"Our safety officer has now logged this as a near miss with WorkSafe and they've asked for the supplier's details. I need a response from someone senior today.",
+   q:{cat:"c",p:"What do you do with this ticket?",o:[
+    {t:"Tell Rob the lanyards passed testing so there's nothing to report.",pts:0,flag:"Told a customer a product involved in a safety incident was safe"},
+    {t:"Link it to {#parent}, update Jamie Hassard and loop in Mel Liu and Rich because a regulator is involved, and let Rob know someone senior will contact him today.",pts:2},
+    {t:"Send WorkSafe our company details yourself.",pts:0,flag:"Contacted a regulator without escalating"},
+    {t:"Reply that you'll look into it this week.",pts:0}]},
+   h:[["Escalate to Jamie Hassard, Mel Liu and Rich",2],["Call Rob to discuss",1],["Reply by email",0]]}},
+ {id:4103,slot:"safety",w:100,pri:"Urgent",subj:"Badge pin snapped and cut a volunteer",from:"Leanne Firth",org:"Harbourside Fun Run",ch:"Email",brand:"Name Badges Australia",order:"SO-23283",
+  body:"The pin on one of our volunteer badges snapped this morning and the sharp end cut a volunteer's hand quite badly. First aid patched her up. We have 80 volunteers wearing these on Sunday. Is this a known problem?",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+   {t:"Suggest they tape over the pins as a precaution and keep using them.",pts:0,flag:"Gave technical advice on a safety incident"},
+   {t:"Escalate to Jamie Hassard now. Reply to Leanne: sorry, hope she's OK, please stop using the badges and keep them, including the broken one, and someone will call today.",pts:2},
+   {t:"Promise replacement badges with magnet backs before Sunday.",pts:0,flag:"Promised a replacement without approval"},
+   {t:"Reply that this is very rare and ask how many are affected.",pts:0}]}],
+  h:[["Escalate to Jamie Hassard (product safety)",2],["Call Leanne to discuss",1],["Reply by email",0],["Send replacements",0]],
+  follow:{id:4203,subj:"Re: Badge pin — volunteer went to hospital",from:"Leanne Firth",org:"Harbourside Fun Run",ch:"Email",brand:"Name Badges Australia",order:"SO-23283",
+   body:"Update: the volunteer needed stitches. Our event insurer has asked for the product details and your company's response. Also, what do we do about Sunday?",
+   q:{cat:"c",p:"What do you do with this ticket?",o:[
+    {t:"Admit the badges were faulty and offer compensation so the insurer is satisfied.",pts:0,flag:"Admitted liability without escalating"},
+    {t:"Link it to {#parent}, update Jamie Hassard with the hospital visit and the insurer's request, loop in Mel Liu and Rich, and call Leanne today.",pts:2},
+    {t:"Tell Leanne to contact the manufacturer directly.",pts:0},
+    {t:"Send the insurer the order details yourself.",pts:0}]},
+   h:[["Escalate to Jamie Hassard, Mel Liu and Rich",2],["Call Leanne to discuss",1],["Reply by email",0]]}},
+
+ // ===== SECURITY / FRAUD =====
+ {id:4111,slot:"security",w:95,pri:"Urgent",subj:"Updated bank details for invoices",from:"accounts@signal-groups-supplies.com",org:"",ch:"Email",brand:"The Signal Group",
+  body:"Dear Accounts Team, please note our banking details have changed effective immediately. All outstanding and future invoice payments should be made to the new account below. Please confirm once updated in your system.\n\nBSB 062-000  Acc 1234 5678\n\nKind regards, Signal Supplies Accounts",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Update the supplier's bank details and reply to confirm.",pts:0,flag:"Actioned a bank-details change from an email"},
+    {t:"Reply asking them to confirm the change by phone.",pts:1},
+    {t:"Don't reply. Forward to Finance and flag to Rich as suspected fraud.",pts:2},
+    {t:"Delete it. It's not a customer ticket.",pts:0}]},
+   {cat:"a",trap:"Spotted the lookalike sender domain",p:"What is the strongest sign something is wrong?",o:[
+    {t:"It arrived before 8am.",pts:0},
+    {t:"The sender's domain is signal-groups-supplies.com, not one of ours or a known supplier.",pts:2,trap:true},
+    {t:"It doesn't include an ABN.",pts:0}]}],
+  h:[["Escalate to Finance and Rich (suspected fraud)",2],["Call the sender to verify",0],["Reply by email",0],["Update the bank details",0]]},
+ {id:4112,slot:"security",w:95,pri:"Urgent",subj:"Urgent favour",from:"rich.till@thesignalgroup-au.com",org:"",ch:"Email",brand:"The Signal Group",
+  body:"Hi, I'm stuck in meetings all day and need a quick favour. Can you buy 10 x $200 Apple gift cards for a client thank-you and send me the codes by 11am? I'll sort the reimbursement tomorrow. Please keep this between us for now.\n\nRich",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Buy the gift cards. It's from Rich and it's urgent.",pts:0,flag:"Acted on a gift-card scam email"},
+    {t:"Reply asking Rich to confirm which client it's for.",pts:0},
+    {t:"Don't reply. Contact Rich on Teams or by phone to check, and report the email as suspected phishing.",pts:2},
+    {t:"Ignore it and delete it.",pts:1}]},
+   {cat:"a",trap:"Spotted the lookalike sender domain",p:"What gives it away?",o:[
+    {t:"The address is thesignalgroup-au.com, not thesignalgroup.com.au, and it asks for secrecy and gift cards.",pts:2,trap:true},
+    {t:"Rich doesn't usually email before 9am.",pts:0},
+    {t:"Nothing. It looks genuine.",pts:0}]}],
+  h:[["Verify with Rich on Teams and report as phishing",2],["Reply by email",0],["Buy the gift cards",0]]},
+ {id:4113,slot:"security",w:95,pri:"Urgent",subj:"Action required: your shipment is on hold",from:"auspost-delivery@parcel-notify.net",org:"",ch:"Email",brand:"The Signal Group",
+  body:"Your shipment AP-7781-23 is held at customs. A fee of $3.95 must be paid within 24 hours or the parcel will be returned. Pay now: auspost-clearance.net/pay\n\nAustralia Post",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Pay the $3.95 so the shipment isn't returned.",pts:0,flag:"Paid a phishing link"},
+    {t:"Forward it to the customer whose parcel it might be.",pts:0},
+    {t:"Don't click the link. Report it as phishing to Rich and close the ticket.",pts:2},
+    {t:"Reply asking which order it relates to.",pts:0}]},
+   {cat:"a",trap:"Spotted the lookalike sender domain",p:"What is the strongest sign it's fake?",o:[
+    {t:"The sender and link aren't auspost.com.au domains.",pts:2,trap:true},
+    {t:"The fee is too small.",pts:0},
+    {t:"There's no order number.",pts:0}]}],
+  h:[["Report to Rich as phishing",2],["Forward to the customer",0],["Pay the fee",0]]},
+
+ // ===== MEDIA / LEGAL =====
+ {id:4121,slot:"media",w:85,pri:"Urgent",subj:"Media enquiry: delivery delays",from:"Jess Collins",org:"Bayside Courier (newspaper)",ch:"Email",brand:"Just Coolers",
+  body:"Hi, I'm writing a story on local businesses affected by courier delays this month. A reader says their order from Just Coolers arrived late and missed their event. Could someone comment on whether you've had delays, and what you're doing about it? My deadline is 2pm today.\n\nCheers, Jess",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Reply saying any delays were caused by our courier, not by us.",pts:0,flag:"Commented to a journalist"},
+    {t:"Forward to Mel Liu with the 2pm deadline. Don't comment.",pts:2},
+    {t:"Forward to Rich to decide.",pts:1},
+    {t:"Leave it until after 2pm so the deadline passes.",pts:0}]}],
+  h:[["Escalate to Mel Liu (media)",2],["Escalate to Rich",1],["Reply by email",0],["Call the journalist",0]]},
+ {id:4122,slot:"media",w:85,pri:"Urgent",subj:"Letter of demand: unauthorised use of trade mark",from:"Hartley & Co Lawyers",org:"for Northern Rays Football Club",ch:"Email",brand:"Just Coolers",
+  body:"We act for Northern Rays Football Club. Our client has become aware that you produced stubby coolers bearing its registered logo for a third party without authorisation. We require written confirmation within 7 days that production has stopped and details of all units sold. Please direct your response to the undersigned.",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Reply that the customer supplied the artwork, so it's not our problem.",pts:0,flag:"Responded to a legal letter"},
+    {t:"Forward to Mel Liu straight away. Don't reply or confirm anything.",pts:2},
+    {t:"Look up the order and send the lawyers the sales details.",pts:0,flag:"Shared order details with a third party"},
+    {t:"Forward to Rich.",pts:1}]}],
+  h:[["Escalate to Mel Liu (legal)",2],["Escalate to Rich",1],["Reply by email",0]]},
+ {id:4123,slot:"media",w:85,pri:"Urgent",subj:"Radio interview request — this afternoon",from:"Tom Reid",org:"4BH Breakfast producer",ch:"Phone message",brand:"The Signal Group",
+  body:"Message from reception: Tom from a Brisbane radio station called. A listener has complained on air about a badge order that arrived broken. They'd like someone from The Signal Group to come on air at 3pm today to respond. Call back on 07 3555 0199.",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Call Tom back and agree to do the interview yourself.",pts:0,flag:"Agreed to speak to the media"},
+    {t:"Pass it to Mel Liu with the 3pm deadline and the callback number. Don't call back yourself.",pts:2},
+    {t:"Call Tom and explain what went wrong with the order.",pts:0,flag:"Commented to the media"},
+    {t:"Ignore it.",pts:0}]}],
+  h:[["Escalate to Mel Liu (media)",2],["Escalate to Rich",1],["Call the producer back",0]]},
+
+ // ===== EVENT DEADLINE + DUPLICATE FOLLOW-UP =====
+ {id:4131,slot:"deadline",w:90,pri:"Urgent",subj:"Badges for Thursday's conference?",from:"Priya Nair",org:"Coastal Health Conference",ch:"Email",brand:"Name Badges Australia",order:"SO-23310",
+  body:"Hi team, our conference is this Thursday and we still haven't had a shipping notification for our 150 name badges (order SO-23310). We paid for express. Delegates arrive at 8am Thursday and the badges have to be on the registration desk. Can you confirm they'll arrive on Wednesday?\n\nThanks, Priya",
+  q:[{cat:"a",trap:"Checked the order is not yet dispatched",p:"Which reply do you send Priya?",o:[
+    {t:"\"Good news, your badges are on their way and will arrive Wednesday.\"",pts:0,flag:"Promised a delivery date without confirming it"},
+    {t:"\"Your badges are finished and waiting to go out on express. I'm checking with dispatch now and will confirm a delivery time by 10am today.\"",pts:2,trap:true},
+    {t:"\"Express usually takes 1–3 business days, so you should be fine for Thursday.\"",pts:0}]}],
+  h:[["Reply by email with an ETA (after checking dispatch)",2],["Call Priya to discuss",2],["Escalate to Rich and dispatch",1],["Refund the express shipping",0]],
+  dup:{id:4132,subj:"RE: Coastal Health badges",from:"Anika Shah",org:"Coastal Health Conference",ch:"Email",brand:"Name Badges Australia",order:"SO-23310",
+   body:"Hi, following up on Priya's email from yesterday about our badge order. Can someone please give us an update this morning? We're getting nervous.\n\nAnika (Events Coordinator)"},
+  cb1:{title:"Priya Nair called about the Coastal Health badges",note:"Priya Nair (Coastal Health) called. The venue has double-booked, so the conference has moved to WEDNESDAY, TOMORROW. Registration still opens at 8am.\nShe needs to know by 11am today whether the badges will make it, or she'll print paper ones.\nPlease call her back on 0412 555 018.",
+   o:[{t:"Call Priya back and confirm the badges will be there by 8am tomorrow.",pts:0,flag:"Promised a delivery time without confirming it"},
+    {t:"Escalate to Rich and dispatch (badgeDispatch) for a same-day or overnight courier, update {#parent}, and call Priya before 11am with a confirmed answer.",pts:2},
+    {t:"Add a note to {#parent} and keep working through your queue in order.",pts:0},
+    {t:"Tell Priya to print paper badges just in case.",pts:1}]}},
+ {id:4133,slot:"deadline",w:90,pri:"Urgent",subj:"Graduation badges for Thursday night",from:"Mark Delaney",org:"Sunnybank State High School",ch:"Email",brand:"Name Badges Australia",order:"SO-23316",
+  body:"Hello, we have 120 engraved badges on order for our Year 12 graduation dinner on Thursday night (SO-23316). Can you confirm they're on track to arrive by Wednesday? The students' families are travelling in for it.\n\nMark Delaney, Deputy Principal",
+  q:[{cat:"a",trap:"Checked the order is delayed",p:"Which reply do you send Mark?",o:[
+    {t:"\"Yes, everything's on track for Wednesday.\"",pts:0,flag:"Promised a delivery date without confirming it"},
+    {t:"\"Your order has been held up by a machine fault. Production expects to dispatch on Wednesday, and I'm checking with them now whether we can still get it to you in time. I'll update you by midday.\"",pts:2,trap:true},
+    {t:"\"Engraved badges take 5–7 business days, so it should be fine.\"",pts:0}]}],
+  h:[["Reply by email with the real status",2],["Call Mark to discuss",2],["Escalate to Rich and production",1],["Refund the order",0]],
+  dup:{id:4134,subj:"Fwd: Graduation badges for Thursday night",from:"Karen Liu",org:"Sunnybank State High School",ch:"Email",brand:"Name Badges Australia",order:"SO-23316",
+   body:"Forwarding Mark's email below. Could someone please reply today? Our principal is asking whether we need a backup plan.\n\nKaren, Front Office"},
+  cb1:{title:"Mark Delaney called about the graduation badges",note:"Mark Delaney (Sunnybank State High) called. The graduation has been brought forward to WEDNESDAY NIGHT because of a venue clash.\nHe needs to know by 1pm today whether the badges will arrive, or the school will print paper name tags.\nPlease call him back on 07 3555 0142.",
+   o:[{t:"Call Mark back and promise the badges will arrive tomorrow.",pts:0,flag:"Promised a delivery time without confirming it"},
+    {t:"Escalate to Rich and production straight away, ask whether a same-day run and courier is possible, update {#parent}, and call Mark before 1pm with a confirmed answer.",pts:2},
+    {t:"Add a note to {#parent} and keep working through your queue in order.",pts:0},
+    {t:"Suggest Mark prints paper name tags just in case.",pts:1}]}},
+
+ // ===== WHERE'S MY ORDER =====
+ {id:4141,slot:"wismo",w:70,pri:"High",subj:"SHORT SHIPPED — we're missing 100 coolers",from:"Marco Bianchi",org:"Harbour City Events",ch:"Email",brand:"Just Coolers",order:"SO-23312",
+  body:"We ordered 200 stubby coolers (SO-23312) and only one box of 100 turned up yesterday. Our festival is Saturday. Please send the missing 100 urgently, express, at your cost.\n\nMarco",
+  q:[{cat:"a",trap:"Found the second carton in transit",p:"Check the order lookup. What do you tell Marco?",o:[
+    {t:"Apologise and send 100 more coolers by express at our cost.",pts:0},
+    {t:"It isn't short shipped: carton 2 of 2 is at the Brisbane depot and out for delivery Wednesday, in time for Saturday.",pts:2,trap:true},
+    {t:"Escalate to Rich for approval to reship the missing 100.",pts:1}]}],
+  h:[["Reply by email with the ETA for carton 2",2],["Call Marco to discuss",2],["Escalate to Rich",1],["Reship the missing 100",0]]},
+ {id:4142,slot:"wismo",w:45,pri:"Normal",alt:["High"],subj:"Where's my order?",from:"Lisa Tran",org:"",ch:"Chat (offline message)",brand:"Just Coolers",order:"SO-23295",
+  body:"hey just wondering where my stubby coolers are up to, order SO-23259. need them for a 40th on saturday. ta",
+  q:[{cat:"a",trap:"Found the order despite the wrong order number",p:"Check the order lookup. What do you reply?",o:[
+    {t:"\"We can't find order SO-23259. Could you check the number?\"",pts:1},
+    {t:"Find her order under SO-23295, tell her it's with Australia Post with an ETA of Thursday, and gently note the correct number.",pts:2,trap:true},
+    {t:"\"Your order has been dispatched!\"",pts:0}]}],
+  h:[["Reply with tracking and ETA",2],["Call Lisa to discuss",1],["Escalate to Rich",0]]},
+ {id:4143,slot:"wismo",w:60,pri:"High",alt:["Normal"],subj:"Tracking says delivered but we never got it",from:"Simone Archer",org:"Greenway Property Group",ch:"Email",brand:"Name Badges Australia",order:"SO-23299",
+  body:"Our tracking says the badges were delivered yesterday, but nobody here has them. Can you send them again? We have new staff starting Monday.",
+  q:[{cat:"a",trap:"Checked who signed for the delivery",p:"Check the order lookup. What do you reply?",o:[
+    {t:"Apologise and send a replacement order straight away.",pts:0,flag:"Reshipped without checking"},
+    {t:"Let Simone know it was signed for by K. Brooks at their front desk at 11:42am Monday, and ask her to check with them. If it can't be found, you'll lodge a courier investigation.",pts:2,trap:true},
+    {t:"Tell her the courier says it was delivered, so there's nothing more we can do.",pts:0}]}],
+  h:[["Reply with the delivery details",2],["Call Simone to discuss",1],["Lodge a courier investigation now",1],["Reship the order",0]]},
+ {id:4144,slot:"wismo",w:55,pri:"High",alt:["Normal"],subj:"Paid 2 weeks ago, still nothing",from:"Greg Paterson",org:"Paterson Plumbing",ch:"Email",brand:"Just Coolers",order:"SO-23271",
+  body:"I paid for 100 coolers two weeks ago and haven't heard a thing. Not happy. Where are they?",
+  q:[{cat:"a",trap:"Found the order is waiting on the customer's proof approval",p:"Check the order lookup. What do you reply?",o:[
+    {t:"Apologise for the delay and say you'll chase production.",pts:0},
+    {t:"Explain the order is on hold waiting for his proof approval, sent on 20 Oct. Resend the proof and let him know production starts as soon as he approves it.",pts:2,trap:true},
+    {t:"Offer a discount for the delay.",pts:0,flag:"Offered a discount without approval"}]}],
+  h:[["Reply and resend the proof",2],["Call Greg to discuss",2],["Escalate to Rich",0]]},
+
+ {id:4145,slot:"wismo",w:50,pri:"Normal",alt:["High"],subj:"Never got a tracking email",from:"Jordan Mills",org:"Mills Fitness",ch:"Chat",brand:"Name Badges Australia",order:"SO-23314",
+  body:"hey, your site says my order shipped yesterday but i never got any tracking email. it's going to a parcel locker. how do i know where it is?",
+  q:[{cat:"a",trap:"Spotted the typo in the customer's email address",p:"Check the order lookup and FAQ. What do you reply?",o:[
+    {t:"Tell him to check his spam folder and close the ticket.",pts:1},
+    {t:"Point out the dispatch email went to jordan@millsfitnes.com.au (missing an s), give him the tracking code, explain parcel lockers are delivered by Australia Post or StarTrack, and offer to fix the email address on his account.",pts:2,trap:true},
+    {t:"Tell him it'll arrive in 3–5 days.",pts:0}]}],
+  h:[["Reply with the tracking code and fix the email",2],["Call Jordan to discuss",1],["Escalate to Rich",0]]},
+ {id:4146,slot:"wismo",w:58,pri:"High",alt:["Normal"],subj:"Our badges never arrived — please remake them",from:"Tash Nguyen",org:"Glow Beauty Bar, Pacific Fair",ch:"Email",brand:"Name Badges Australia",order:"SO-23297",
+  body:"Hi, we ordered 12 name badges for our store at Pacific Fair nearly three weeks ago and they never turned up. Centre management says nothing came in for us. Can you please remake them and send them again at no charge? We've got new staff starting.",
+  q:[{cat:"a",trap:"Checked the order used untracked shipping",p:"Check the order lookup and policies. What do you reply?",o:[
+    {t:"Apologise and remake the badges free of charge with express shipping.",pts:0,flag:"Promised a free remake against the untracked shipping policy"},
+    {t:"Empathise, and explain the order was sent untracked, so the parcel can't be traced and we can't remake it free of charge. Offer to help her reorder with tracked shipping, which is more reliable for shopping-centre stores, and flag it to her account manager or Rich if she pushes back.",pts:2,trap:true},
+    {t:"Tell her it's not our problem because she chose untracked shipping.",pts:0,flag:"Blamed the customer bluntly"},
+    {t:"Lodge a courier investigation and tell her to wait.",pts:0}]}],
+  h:[["Reply explaining the policy and offer a tracked reorder",2],["Call Tash to discuss",2],["Escalate to Rich",1],["Remake free of charge",0]]},
+ // ===== COMPLAINT (written reply) =====
+ {id:4151,slot:"complaint",w:65,pri:"High",subj:"Absolutely useless — 40 badges with our name spelled wrong",from:"Dan Mercer",org:"Mercer Plumbing",ch:"Email",brand:"Name Badges Australia",order:"SO-23288",
+  body:"Opened the box today and every single badge says MERCR PLUMBING. Forty of them. You people can't spell a six-letter name? I want these redone for free and sent by Friday or I'm leaving a 1-star review on Google and posting this on Facebook. Order SO-23288.",
+  q:[{cat:"a",trap:"Found the misspelling was in the approved proof",p:"What do you do with this ticket?",o:[
+    {t:"Apologise and promise a free reprint by Friday.",pts:0,flag:"Promised a free reprint without approval"},
+    {t:"Tell Dan he approved the proof, so the mistake is his and we can't help.",pts:1,trap:true,flag:"Blamed the customer bluntly"},
+    {t:"Acknowledge his frustration, calmly explain the proof approved on 14 Oct showed \"Mercr\", escalate to Rich for a goodwill decision, and tell him when he'll hear back.",pts:2,trap:true}]},
+   {cat:"w",p:"Write your reply to {first} (aim for under 120 words). The assessor will read this."}],
+  h:[["Escalate to Rich for a goodwill decision",2],["Call Dan to discuss",1],["Reply by email",1],["Free reprint",0]]},
+ {id:4152,slot:"complaint",w:65,pri:"High",subj:"Badges are the wrong colour",from:"Daniel Okafor",org:"Northside Medical Centre",ch:"Email",brand:"Name Badges Australia",order:"SO-23305",
+  body:"Our new staff badges arrived (SO-23305) and the blue is noticeably lighter than the badges we ordered last year. Same logo, same order as before. They don't match the ones our existing staff are wearing. This isn't good enough.",
+  q:[{cat:"a",trap:"Found the production note about new badge stock",p:"Check the order lookup. What do you do?",o:[
+    {t:"Explain that colours can vary between print runs, so nothing can be done.",pts:0},
+    {t:"Apologise, note the order was printed on new badge stock this run, ask for a photo of an old and a new badge side by side, and escalate to Rich for a decision.",pts:2,trap:true},
+    {t:"Promise a free reprint in the right colour.",pts:0,flag:"Promised a free reprint without approval"}]},
+   {cat:"w",p:"Write your reply to {first} (aim for under 120 words). The assessor will read this."}],
+  h:[["Reply asking for photos, then escalate to Rich",2],["Call Daniel to discuss",1],["Free reprint",0]]},
+ {id:4153,slot:"complaint",w:65,pri:"High",subj:"Print peeled off after one wash",from:"Kylie Brennan",org:"Brennan's Bottle Shop",ch:"Email",brand:"Just Coolers",order:"SO-23292",
+  body:"We gave out 300 of your coolers at our store anniversary and customers are already bringing them back. The print is peeling off after one go in the dishwasher. Embarrassing. What are you going to do about it?",
+  q:[{cat:"a",trap:"Checked the care instructions (hand wash only)",p:"Check the order lookup. What do you do?",o:[
+    {t:"Apologise and offer a full reprint of all 300.",pts:0,flag:"Promised a free reprint without approval"},
+    {t:"Acknowledge it, gently explain the care card says hand wash only, ask for photos, and escalate to Rich for a goodwill decision.",pts:2,trap:true},
+    {t:"Tell her it's her customers' fault for using the dishwasher.",pts:0,flag:"Blamed the customer bluntly"}]},
+   {cat:"w",p:"Write your reply to {first} (aim for under 120 words). The assessor will read this."}],
+  h:[["Reply asking for photos, then escalate to Rich",2],["Call Kylie to discuss",1],["Free reprint",0]]},
+
+ // ===== REFUND =====
+ {id:4161,slot:"refund",w:63,pri:"High",alt:["Normal"],subj:"Refund request: coolers have our old logo",from:"Tom Avery",org:"Breakwater Sports Club",ch:"Email",brand:"Just Coolers",order:"SO-23301",
+  body:"Hi there, our 300 stubby coolers arrived (SO-23301) but they've been printed with our old club logo. We rebranded in 2023. We can't hand these out at presentation night. Please refund the $1,860 so we can reorder with the right logo.\n\nRegards, Tom Avery, Treasurer",
+  q:[{cat:"a",trap:"Found the old logo came from the customer's own file",p:"What do you do with this ticket?",o:[
+    {t:"Process the $1,860 refund so they can reorder quickly.",pts:0,flag:"Promised a refund without approval"},
+    {t:"Explain the artwork supplied was logo_2019.png and the proof was approved, link the Artwork approval process article, escalate to Rich, and offer to help with a reorder.",pts:2,trap:true},
+    {t:"Reply that we don't refund approved artwork, and close the ticket.",pts:0}]}],
+  h:[["Escalate to Rich for refund approval",2],["Reply by email explaining the artwork",1],["Call Tom to discuss",1],["Refund the order",0]]},
+ {id:4162,slot:"refund",w:63,pri:"High",alt:["Normal"],subj:"Please cancel my order and refund",from:"Natasha Kerr",org:"Kerr Family Reunion",ch:"Email",brand:"Just Coolers",order:"SO-23318",
+  body:"Hi, I placed an order for 80 coolers yesterday by mistake (wrong colour). Please cancel it and refund me, and I'll place a new one.",
+  q:[{cat:"a",trap:"Applied the 1-hour change and cancel policy",p:"Check the order lookup and the FAQ. What do you do?",o:[
+    {t:"Cancel the order and process the refund.",pts:0,flag:"Promised a refund without approval"},
+    {t:"Explain kindly that orders can only be changed or cancelled within 1 hour of being placed, and hers is already in production. Escalate to Rich if she wants to explore options, and let her know when she'll hear back.",pts:2,trap:true},
+    {t:"Reply that orders can't be cancelled.",pts:0}]}],
+  h:[["Escalate to Rich (cancellation request)",2],["Call Natasha to discuss",1],["Cancel and refund",0]]},
+ {id:4163,slot:"refund",w:63,pri:"High",alt:["Normal"],subj:"You've charged me twice",from:"Peter Walsh",org:"Walsh Accounting",ch:"Email",brand:"Name Badges Australia",order:"SO-23285",
+  body:"I've been charged $640 twice for my badge order. Please refund the duplicate charge ASAP.",
+  q:[{cat:"a",trap:"Found the second charge was a released pre-authorisation",p:"Check the order lookup. What do you reply?",o:[
+    {t:"Refund $640 straight away.",pts:0,flag:"Promised a refund without approval"},
+    {t:"Explain he was charged once. The second $640 was a pre-authorisation that was released on 1 Nov and should drop off his statement within a few business days. Offer to check with Finance if it hasn't.",pts:2,trap:true},
+    {t:"Forward to Finance without replying.",pts:1}]}],
+  h:[["Reply explaining the pre-authorisation",2],["Escalate to Finance",1],["Refund the charge",0]]},
+
+ {id:4164,slot:"refund",w:63,pri:"High",alt:["Normal"],subj:"Badges arrived damaged",from:"Sophie Grant",org:"Grant Real Estate",ch:"Email",brand:"Name Badges Australia",order:"SO-23308",
+  body:"Our order came today and 6 of the 30 badges are cracked across the front. The box looked like it had been dropped. Can we get these replaced? We need them for an open home on Saturday.",
+  q:[{cat:"a",trap:"Applied the damaged-item policy (photo within 14 days)",p:"Check the order lookup and the FAQ. What do you do?",o:[
+    {t:"Tell her change-of-mind returns aren't permitted on custom products.",pts:0},
+    {t:"Ask Sophie for a photo of the damaged badges. Her order dispatched 4 days ago, so it's within the 14-day window. Escalate to Rich for replacement approval, mention her Saturday deadline, and tell Sophie when she'll hear back. Don't promise the replacement yet. If it's approved, she'll get an RMA number and return instructions.",pts:2,trap:true},
+    {t:"Tell Sophie 6 replacements are on the way and will arrive before Saturday.",pts:0,flag:"Promised a replacement without approval"},
+    {t:"Refund the whole order.",pts:0,flag:"Promised a refund without approval"}]}],
+  h:[["Ask for a photo, then escalate to Rich for approval",2],["Call Sophie to discuss",1],["Arrange the replacement yourself",0],["Refund the order",0]]},
+ {id:4165,slot:"refund",w:63,pri:"High",alt:["Normal"],subj:"How do I return faulty badges?",from:"Ian Mackenzie",org:"Mackenzie Motors",ch:"Email",brand:"Name Badges Australia",order:"SO-23311",
+  body:"About half of the 50 magnetic badges we got have magnets that won't hold. Order SO-23311. How do I send them back and get them replaced?",
+  q:[{cat:"a",trap:"Explained the RMA return process",p:"Check the order lookup and policies. What do you reply?",o:[
+    {t:"Tell Ian to post them back to the Helensvale address and you'll send new ones.",pts:0,flag:"Promised a replacement without approval"},
+    {t:"Thank him and check his order dispatched 6 days ago, so he's within 14 days. Ask for photos and how many are affected, and escalate to Rich for approval. Explain that once approved he'll get an RMA number and return address, must send the items back securely packed within 14 days with the RMA number, and return postage is at his cost.",pts:2,trap:true},
+    {t:"Offer a refund instead, since a replacement will take a while.",pts:0,flag:"Promised a refund without approval"}]}],
+  h:[["Reply explaining the RMA process, then escalate to Rich",2],["Call Ian to discuss",1],["Send replacements",0]]},
+ {id:4166,slot:"refund",w:63,pri:"High",alt:["Normal"],subj:"Return for refund please",from:"Carla Benedetti",org:"Benedetti Catering",ch:"Email",brand:"Name Badges Australia",order:"SO-23263",
+  body:"Hi, we ordered 60 badges last month but our event got cancelled, so we don't need them anymore. They're still in the box, unused. Can we send them back for a refund?",
+  q:[{cat:"a",trap:"Applied the policy: no change-of-mind refunds, outside 14 days",p:"Check the order lookup and policies. What do you reply?",o:[
+    {t:"Send her an RMA number so she can return them for a refund.",pts:0,flag:"Promised a refund without approval"},
+    {t:"Sympathise, and explain kindly that because the badges are custom made we can't offer change-of-mind refunds. Her order also dispatched over 14 days ago. If she pushes back, escalate to Rich.",pts:2,trap:true},
+    {t:"Tell her no and close the ticket.",pts:0}]}],
+  h:[["Reply explaining the policy",2],["Escalate to Rich",1],["Issue an RMA for a refund",0]]},
+ // ===== PRIVACY =====
+ {id:4171,slot:"privacy",w:60,pri:"High",alt:["Normal"],subj:"Delete my details",from:"Kelvin Ross",org:"",ch:"Email",brand:"The Signal Group",
+  body:"Please remove me from your mailing list and delete all personal information you hold about me. I haven't ordered from you in years.",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Unsubscribe him and close the ticket.",pts:1},
+    {t:"Route to Rich as a privacy request and let Kelvin know someone will confirm.",pts:2},
+    {t:"Delete his contact record in Zendesk yourself.",pts:0}]}],
+  h:[["Escalate to Rich (privacy request)",2],["Reply by email confirming deletion",0],["Delete the contact yourself",0]]},
+ {id:4172,slot:"privacy",w:60,pri:"High",alt:["Normal"],subj:"What email did my colleague use?",from:"Josh Henley",org:"",ch:"Chat",brand:"Name Badges Australia",
+  body:"hi, my colleague Amy ordered badges for our team last month but she's on leave. can you tell me what email and phone number she used, and her home delivery address? want to check the order",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Give him Amy's contact details so he can check the order.",pts:0,flag:"Disclosed another person's personal details"},
+    {t:"Explain you can't share another person's details, and offer to help with the order if he has the order number or can be added as a contact by his company.",pts:2},
+    {t:"Give him the delivery address only.",pts:0,flag:"Disclosed another person's personal details"}]}],
+  h:[["Reply declining to share details",2],["Escalate to Rich (privacy)",1],["Share the details",0]]},
+ {id:4173,slot:"privacy",w:60,pri:"High",alt:["Normal"],subj:"Request for all my personal information",from:"Elena Petrova",org:"",ch:"Email",brand:"The Signal Group",
+  body:"Under the Privacy Act, I request a copy of all personal information The Signal Group holds about me, including order history and any marketing records.",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Export her Zendesk record and order history and email it to her.",pts:0,flag:"Released personal information without verification"},
+    {t:"Route to Rich as a privacy access request and let Elena know someone will be in touch.",pts:2},
+    {t:"Reply that we don't hold much about her.",pts:0}]}],
+  h:[["Escalate to Rich (privacy request)",2],["Reply by email with her data",0],["Close the ticket",0]]},
+
+ // ===== SALES: quote / pricing / shipping / order request =====
+ {id:4181,slot:"sales",w:45,pri:"Normal",alt:["High"],subj:"Quote for 500 stubby coolers",from:"Rachel Moore",org:"Moore Real Estate",ch:"Web form",brand:"Just Coolers",
+  body:"Looking for a quote on 500 neoprene stubby coolers with our logo, 2 colour print. Need them by the end of the month for a client event. Can you send pricing and turnaround?",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Leave it until tomorrow. Complaints come first.",pts:0},
+    {t:"Acknowledge it, tag Sales Account Manager and route to Sales with the quantity, print spec and deadline. Quotes need a first reply within 4 hours at Normal.",pts:2},
+    {t:"Send Rachel your own price estimate so she isn't kept waiting.",pts:0}]}],
+  h:[["Route to Sales (tag Sales Account Manager)",2],["Call Rachel to discuss",1],["Reply by email with a price",0]]},
+ {id:4182,slot:"sales",w:45,pri:"Normal",alt:["High"],subj:"How much for 100 badges?",from:"Ahmed Rahimi",org:"Rahimi Dental",ch:"Chat",brand:"Name Badges Australia",
+  body:"how much would 100 name badges with magnet backs cost? with our logo and staff names",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Guess a price based on what you've seen on the website.",pts:0},
+    {t:"Point him to the pricing on the website for standard badges, and route to Sales (tag Sales Account Manager) for an exact quote with magnet backs.",pts:2},
+    {t:"Tell him to call back later.",pts:0}]}],
+  h:[["Route to Sales (tag Sales Account Manager)",2],["Reply with website pricing",1],["Reply with your own price",0]]},
+ {id:4183,slot:"sales",w:45,pri:"Normal",alt:["High"],subj:"Shipping cost to Darwin?",from:"Liam O'Connor",org:"Top End Fishing Club",ch:"Email",brand:"Just Coolers",
+  body:"Before we order, what would shipping cost to Darwin for 300 coolers? And how long would it take? Need them for our comp in 3 weeks.",
+  q:[{cat:"a",trap:"Used the FAQ (bulk quotes and regional delivery times)",p:"Check the FAQ and policies. What do you do?",o:[
+    {t:"Tell him shipping is a flat $15 and takes 3–5 days.",pts:0},
+    {t:"Route it to Sales (tag Sales Account Manager) for a bespoke bulk quote including freight, with the quantity, destination and date. Let Liam know orders usually dispatch within 5 days from Helensvale and remote postcodes like Darwin can take longer than the standard 3–5 business days.",pts:2,trap:true},
+    {t:"Tell him it'll be expensive and suggest a local supplier.",pts:0}]}],
+  h:[["Route to Sales (tag Sales Account Manager)",2],["Reply by email with an estimate",0],["Call Liam to discuss",1]]},
+ {id:4184,slot:"sales",w:45,pri:"Normal",alt:["High"],subj:"Same order as last time please",from:"Wendy Cho",org:"Gold Coast Rowing Club",ch:"Email",brand:"Just Coolers",order:"SO-23240",
+  body:"Hi! Can you please put through the same order as last time — 200 coolers — and invoice us? Thanks so much. Wendy",
+  q:[{cat:"a",trap:"Found the previous order and checked the artwork",p:"Check the order lookup. What do you do?",o:[
+    {t:"Create a new order for 200 coolers and confirm it's done.",pts:0},
+    {t:"Find her last order (SO-23240, navy coolers, 1-colour white logo), confirm with Wendy that colour and artwork haven't changed, then route to Sales to set up the reorder.",pts:2,trap:true},
+    {t:"Ask her to order through the website instead.",pts:0}]}],
+  h:[["Confirm details, then route to Sales",2],["Call Wendy to discuss",1],["Create the order yourself",0]]},
+
+ {id:4185,slot:"sales",w:45,pri:"Normal",alt:["High"],subj:"Badges and lanyards for 2,000 staff",from:"Rebecca Tan",org:"Queensland Health Network (procurement)",ch:"Email",brand:"Name Badges Australia",
+  body:"We're looking for a supplier for name badges and branded lanyards for about 2,000 staff across 14 sites, with new starters every month. We'd need custom colours to match our brand guidelines and an easy way for each site to reorder. Can your website handle this?",
+  q:[{cat:"a",trap:"Routed a large custom account to The Signal Group",p:"Check the policies and FAQ. What do you do?",o:[
+    {t:"Tell Rebecca to use the bulk order feature in the product customiser.",pts:1},
+    {t:"Explain this is exactly what our sister company The Signal Group does: custom specs, volume pricing and a dedicated reordering portal for each site. Route it to The Signal Group sales team (tag Sales Account Manager) with the details, and give her salessupport@thesignalgroup.com.au and 07 5519 3637.",pts:2,trap:true},
+    {t:"Quote her a price per badge from the website.",pts:0}]}],
+  h:[["Route to The Signal Group sales team",2],["Call Rebecca to discuss",1],["Reply with the bulk order feature",1],["Quote from website prices",0]]},
+ // ===== CUSTOMER HELP: password / artwork / website =====
+ {id:4191,slot:"help",w:50,pri:"High",alt:["Normal"],subj:"Can't log in to see our past orders",from:"Ben Hargreaves",org:"Coastline Real Estate Group",ch:"Email",brand:"Name Badges Australia",
+  body:"Hi, I'm trying to log in to our account to see our past badge orders but I don't know the password. Can you reset it and email me a new one? Or I can send you the old one if that helps. Need to reorder today. Ben",
+  q:[{cat:"a",trap:"Used the account login FAQ (email code, no password)",p:"Check the FAQ. What do you do?",o:[
+    {t:"Ask Ben to send his old password so you can check what's wrong.",pts:0,flag:"Asked a customer for their password"},
+    {t:"Explain there's no password: he goes to account.namebadgesaustralia.com, enters the email address he orders with, and a short login code is emailed to him. Suggest he checks his spam folder if it doesn't arrive.",pts:2,trap:true},
+    {t:"Reset his account yourself and email him a temporary password.",pts:0,flag:"Sent a password by email"}]}],
+  h:[["Reply with the login steps from the FAQ",2],["Call Ben to walk him through it",1],["Escalate to Rich",0],["Reset it and email a password",0]]},
+ {id:4192,slot:"help",w:40,pri:"Normal",subj:"Artwork specs for coolers?",from:"Tyler Nguyen",org:"Brewhouse Collective",ch:"Chat",brand:"Just Coolers",
+  body:"hey, what file type and size do you need for artwork on stubby coolers? our designer wants to know before she sends it through",
+  q:[{cat:"a",trap:"Used the Help Center article for artwork specs",p:"What do you do?",o:[
+    {t:"Tell him any high-res image is fine, from memory.",pts:0},
+    {t:"Send him the Artwork approval process Help Center article, which covers file types and specs, and offer to check the file once the designer sends it.",pts:2,trap:true},
+    {t:"Route it to Sales to answer.",pts:1}]}],
+  h:[["Reply with the Help Center artwork article",2],["Call Tyler to discuss",1],["Route to Sales",1]]},
+ {id:4193,slot:"help",w:40,pri:"Normal",subj:"I can't work out your new website",from:"Joan Whitfield",org:"Whitfield Bowls Club",ch:"Phone message",brand:"Name Badges Australia",
+  body:"Message from reception: Joan has ordered name badges for her club for years on the old Full Colour Badges website. She says the new site is confusing and she can't work out how to recreate her badge design in the product customiser. She'd like someone to help her. She's not very confident with computers.",
+  q:[{cat:"j",p:"What do you do?",o:[
+    {t:"Tell Joan the old site has been switched off and she'll need to get used to the new one.",pts:0},
+    {t:"Call Joan to walk her through the customiser. Follow up by email with the returning customers page, which has a step-by-step guide to recreating old templates, and offer to send her past order details and template.",pts:2},
+    {t:"Log it with Rich as a website bug.",pts:0}]}],
+  h:[["Call Joan to walk her through it",2],["Reply with the returning customers guide",1],["Route to Sales to take the order",1]]},
+ {id:4194,slot:"help",w:40,pri:"Normal",subj:"Our logo file keeps getting rejected",from:"Priyanka Shah",org:"Shah Physio",ch:"Email",brand:"Name Badges Australia",
+  body:"I've tried uploading our logo three times in the badge designer and it keeps saying 'file resolution too low'. It's the logo from our website. What am I doing wrong?",
+  q:[{cat:"a",trap:"Used the Help Center article for artwork specs",p:"What do you do?",o:[
+    {t:"Tell her to stretch the image bigger and try again.",pts:0},
+    {t:"Explain website logos are usually too small for print, send the Artwork approval process article with the file specs, and offer to check a higher-quality file if she emails it.",pts:2,trap:true},
+    {t:"Tell her the designer is broken and to try another day.",pts:0}]}],
+  h:[["Reply with the artwork article",2],["Call Priyanka to discuss",1],["Escalate to Rich",0]]},
+
+ {id:4188,slot:"help",w:40,pri:"Normal",subj:"Can I just email you my card number?",from:"Doug Fraser",org:"Fraser Electrical",ch:"Email",brand:"Name Badges Australia",
+  body:"I'm not keen on entering my card online. Can I just email you my credit card number and expiry and you put the order through for me? 20 badges, same as last time.",
+  q:[{cat:"j",p:"What do you do?",o:[
+    {t:"Accept the card details by email and put the order through.",pts:0,flag:"Accepted card details by email"},
+    {t:"Explain that for his security we never take card details by email, and that online payments go through Stripe and we never store card details. Offer to help him place the order or call him to walk through checkout.",pts:2},
+    {t:"Tell him he has to order online, and close the ticket.",pts:0}]}],
+  h:[["Reply explaining secure payment and offer help",2],["Call Doug to walk him through checkout",2],["Take the card details",0]]},
+ {id:4189,slot:"help",w:40,pri:"Normal",subj:"Where are my orders from the old website?",from:"Pam Cooper",org:"Cooper Dental",ch:"Email",brand:"Name Badges Australia",
+  body:"I've logged in to the new website but none of our old orders from Full Colour Badges are there. I always just reordered from my history. Have they been lost?",
+  q:[{cat:"a",trap:"Used the FAQ (returning customers page)",p:"Check the FAQ. What do you reply?",o:[
+    {t:"Tell her old orders weren't carried across, so she'll have to start again.",pts:0},
+    {t:"Reassure her that nothing is lost. Send the returning customers page (namebadgesaustralia.com/pages/returning-customers), which has a step-by-step guide to recreating templates, and offer to email her past order details and templates.",pts:2,trap:true},
+    {t:"Escalate to Rich as a website bug.",pts:0}]}],
+  h:[["Reply with the returning customers page",2],["Call Pam to discuss",1],["Escalate to Rich",0]]},
+ // ===== MISC: job openings / random requests / auto-replies =====
+ {id:4199,slot:"misc",w:15,pri:"Low",alt:["Normal"],subj:"Do you ship to the UK?",from:"Oliver Hughes",org:"Hughes Events Ltd (London)",ch:"Web form",brand:"Just Coolers",
+  body:"Hi, we're a UK events company and love your coolers. Could you ship 400 to London? What would it cost?",
+  q:[{cat:"a",trap:"Used the FAQ (Australia and New Zealand only)",p:"Check the FAQ. What do you reply?",o:[
+    {t:"Say yes and route it to Sales for a freight quote.",pts:0},
+    {t:"Thank him and explain we currently only ship to Australia and New Zealand.",pts:2,trap:true},
+    {t:"Ignore it.",pts:0}]}],
+  h:[["Reply explaining we ship to AU and NZ only",2],["Route to Sales",0],["Close without replying",0]]},
+ {id:4195,slot:"misc",w:10,pri:"Low",subj:"Automatic reply: Your order has been dispatched",from:"greg.walsh@outlook.com",org:"",ch:"Email",brand:"Just Coolers",
+  body:"Thanks for your email. I am out of the office until Monday 16 November with limited access to email.",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Close it without replying.",pts:2},
+    {t:"Reply to check Greg received his order.",pts:0},
+    {t:"Forward to Rich.",pts:0}]}],
+  h:[["Close, no reply needed",2],["Reply by email",0],["Escalate to Rich",0]]},
+ {id:4196,slot:"misc",w:15,pri:"Low",alt:["Normal"],subj:"Are you hiring?",from:"Chloe Martin",org:"",ch:"Email",brand:"The Signal Group",
+  body:"Hi, I'm really interested in working for The Signal Group. Do you have any job openings in customer service or the warehouse? I've attached my resume. Thanks, Chloe",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Tell her there are definitely jobs coming up and you'll put in a good word.",pts:0,flag:"Made promises about hiring"},
+    {t:"Thank her, forward the email and resume to Rich, and let her know current roles are advertised on our careers page.",pts:2},
+    {t:"Close it. It's not a customer ticket.",pts:0}]}],
+  h:[["Forward to Rich and reply politely",2],["Close without replying",0],["Reply with your own advice",0]]},
+ {id:4197,slot:"misc",w:15,pri:"Low",alt:["Normal"],subj:"Donation for our charity raffle?",from:"Bec Ingram",org:"Redlands Kids Cancer Support",ch:"Web form",brand:"Just Coolers",
+  body:"Hi! We're running a fundraiser raffle next month for kids with cancer. Would Just Coolers be able to donate a pack of custom coolers as a prize? Happy to put your logo on our flyers.",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Say yes and arrange a free pack of coolers.",pts:0,flag:"Approved a donation without authority"},
+    {t:"Thank her warmly, forward it to Rich (sponsorships and donations), and let her know someone will be in touch.",pts:2},
+    {t:"Reply that we don't do donations.",pts:0}]}],
+  h:[["Forward to Rich and reply politely",2],["Approve the donation",0],["Decline",0]]},
+ {id:4198,slot:"misc",w:15,pri:"Low",alt:["Normal"],subj:"Do you do coffee cups?",from:"Sean Doyle",org:"Doyle's Cafe",ch:"Chat",brand:"Just Coolers",
+  body:"do you guys print logos on keep cups or coffee mugs? want some for the cafe",
+  q:[{cat:"j",p:"What do you do with this ticket?",o:[
+    {t:"Say yes and take an order.",pts:0},
+    {t:"Explain we don't sell cups, mention the products we do offer that might suit (coolers, badges), and route to Sales if he's interested.",pts:2},
+    {t:"Ignore it. It's not something we sell.",pts:0}]}],
+  h:[["Reply explaining what we offer",2],["Route to Sales",1],["Close without replying",0]]},
+];
+
+// Curveballs: one drops into the queue every 5 minutes, random order per candidate.
+const EXTRA = [
+ {t:{id:4214,subj:"Can I change the colour on my order?",from:"Gina Park",org:"Riverside Netball Club",ch:"Chat",brand:"Just Coolers",order:"SO-23320",
+   body:"hi! we approved our proof yesterday but the committee now wants black coolers instead of navy. can you just swap it over? same logo. thanks heaps"},
+  q:{cat:"c",p:"What do you do?",o:[
+   {t:"Change the colour on the order and confirm it's done.",pts:0,flag:"Changed an approved order without checking production"},
+   {t:"Explain kindly that changes are only possible within 1 hour of ordering and her order is already in production. Check with production anyway, and escalate to Rich if she wants a quote for a new run.",pts:2},
+   {t:"Tell her changes can't be made once a proof is approved.",pts:1}]},
+  h:[["Reply with the status after checking production",2],["Call Gina to discuss",1],["Escalate to Rich",1],["Change the order yourself",0]]},
+ {t:{id:4215,subj:"Can't check out on your website",from:"3 customers",org:"justcoolers.com.au",ch:"Email (3 tickets)",brand:"Just Coolers",
+   body:"Three new tickets in ten minutes, all saying the same thing:\n\n\"Tried to pay for my order and the checkout page just errors out.\"\n\"Your payment page is broken??\"\n\"Can't complete my order, keeps failing at checkout.\""},
+  q:{cat:"c",p:"What do you do?",o:[
+   {t:"Reply to each customer suggesting they clear their cache or try another browser.",pts:0},
+   {t:"Flag it to Rich straight away as a possible outage, then send the three customers a short holding reply and link the tickets.",pts:2},
+   {t:"Wait and see if more tickets come in before doing anything.",pts:0}]},
+  h:[["Escalate to Rich (possible outage)",2],["Reply by email to each customer",1],["Call the customers",0]]},
+ {t:{id:4216,subj:"You people are a joke",from:"Craig Dunn",org:"Dunn Electrical",ch:"Email",brand:"Name Badges Australia",
+   body:"This is the THIRD time I've emailed. Nobody answers, nobody cares. Your service is a disgrace and so are you. If I don't hear back today I'll come down to your warehouse and sort it out myself. Order number is in my last 2 emails, go find it."},
+  q:{cat:"c",p:"What do you do?",o:[
+   {t:"Reply firmly that his tone is unacceptable and you won't help until he apologises.",pts:0,flag:"Argued with an aggressive customer"},
+   {t:"Send a short, calm acknowledgement, find his earlier emails, and escalate to Rich as a difficult customer, mentioning the threat to visit the warehouse.",pts:2},
+   {t:"Close the ticket and mark him as spam.",pts:0}]},
+  h:[["Escalate to Rich (difficult customer)",2],["Reply by email",1],["Call Craig to discuss",0],["Close the ticket",0]]},
+ {t:{id:4217,subj:"You've sent me someone else's invoice",from:"Hannah Lee",org:"Lee & Co Accounting",ch:"Email",brand:"The Signal Group",
+   body:"Hi, the invoice you just emailed me isn't mine. It's for a company called Bayview Dental, with their address, contact name and order details. You might want to look into that. Hannah"},
+  q:{cat:"c",p:"What do you do?",o:[
+   {t:"Thank her and say it was just a small mix-up.",pts:0,flag:"Played down a privacy breach"},
+   {t:"Thank her, ask her to delete it, and escalate to Rich straight away as a privacy issue.",pts:2},
+   {t:"Ask her to forward the invoice back so you can send it to the right customer.",pts:1}]},
+  h:[["Escalate to Rich (privacy issue)",2],["Reply by email",1],["Call Hannah to discuss",1]]},
+ {t:{id:4218,subj:"Urgent: 40 name badges for a memorial service Friday",from:"Margaret Ellis",org:"St John's Parish",ch:"Web form",brand:"Name Badges Australia",
+   body:"Our parish is holding a memorial service on Friday and we need 40 name badges for the volunteers. I know it's short notice. Is it possible, and what would it cost? Please let me know as soon as you can."},
+  q:{cat:"c",p:"What do you do?",o:[
+   {t:"Reply that Friday is no problem and you'll get them out today.",pts:0,flag:"Promised a delivery date without checking"},
+   {t:"Reply with empathy, set it to Urgent and route to Sales (tag Sales Account Manager) so she gets a first reply within 30 minutes. Don't promise a date.",pts:2},
+   {t:"Tell her Friday isn't possible.",pts:0}]},
+  h:[["Route to Sales as urgent (tag Sales Account Manager)",2],["Call Margaret to discuss",1],["Reply by email with a price",0]]},
+ {t:{id:4219,subj:"Quick one",from:"Rich Till",org:"Internal (Teams)",ch:"Teams message",brand:"The Signal Group",
+   body:"Hey, I'm about to jump into a leadership meeting. Can you send me a quick summary of anything urgent in your queue that I need to know about? Thanks"},
+  q:{cat:"c",p:"What do you send Rich?",o:[
+   {t:"Nothing yet. You'll update him once the queue is cleared.",pts:0},
+   {t:"A short summary of the urgent items only: the safety incident, the suspicious email, the event deadline and the media or legal enquiry.",pts:2},
+   {t:"A list of every ticket in the queue.",pts:1}]},
+  h:[["Reply with a short summary",2],["Call Rich",1],["Leave it until later",0]]},
+ {requires:4142,t:{id:4220,subj:"Re: Where's my order? Thanks, all sorted!",from:"Lisa Tran",org:"",ch:"Chat",brand:"Just Coolers",order:"SO-23295",
+   body:"oh perfect thanks! all sorted 🙂"},
+  q:{cat:"c",p:"What do you do?",o:[
+   {t:"Mark it solved. No reply needed.",pts:2},
+   {t:"Escalate to Rich.",pts:0},
+   {t:"Send a follow-up asking for a review.",pts:1}]},
+  h:[["Close, no reply needed",2],["Reply to thank her",1],["Escalate to Rich",0]]},
+ {t:{id:4221,subj:"Can I pick up my order from you?",from:"Adam Price",org:"Price Electrical",ch:"Chat",brand:"Name Badges Australia",
+   body:"my badges are ready apparently. can i just swing by your warehouse this arvo and grab them? would save me waiting for the courier"},
+  q:{cat:"c",p:"What do you do?",o:[
+   {t:"Tell him to come by any time this afternoon without checking.",pts:0},
+   {t:"Check with dispatch that his order is ready to collect, then let him know he can pick it up from 10 Millennium Circuit, Helensvale, between 9am and 4pm weekdays.",pts:2},
+   {t:"Tell him pick-ups are never allowed.",pts:0}]},
+  h:[["Check with dispatch, then reply",2],["Call Adam to discuss",1],["Confirm the pick-up",0]]},
+];
+
+const ORDERS = [
+ {so:"SO-23312",cust:"Harbour City Events (Marco Bianchi)",brand:"Just Coolers",items:"200 stubby coolers, 2 cartons of 100",status:"Dispatched Friday. Carton 1 delivered Monday. Carton 2 at the Brisbane depot, out for delivery Wednesday."},
+ {so:"SO-23310",cust:"Coastal Health Conference (Priya Nair)",brand:"Name Badges Australia",items:"150 printed magnetic badges",status:"Production complete, awaiting dispatch. Express shipping paid. Event date on order: Thursday."},
+ {so:"SO-23316",cust:"Sunnybank State High School (Mark Delaney)",brand:"Name Badges Australia",items:"120 engraved badges",status:"Delayed: engraving machine fault Monday. Production expects to dispatch Wednesday. Event date on order: Thursday."},
+ {so:"SO-23301",cust:"Breakwater Sports Club (Tom Avery)",brand:"Just Coolers",items:"300 stubby coolers, $1,860",status:"Delivered. Artwork supplied by customer (file: logo_2019.png). Proof approved by customer."},
+ {so:"SO-23295",cust:"Lisa Tran",brand:"Just Coolers",items:"60 stubby coolers",status:"Dispatched Monday, Australia Post. ETA Thursday."},
+ {so:"SO-23299",cust:"Greenway Property Group (Simone Archer)",brand:"Name Badges Australia",items:"25 printed badges",status:"Delivered Monday 11:42am. Signed for by \"K. Brooks\" at front desk."},
+ {so:"SO-23271",cust:"Paterson Plumbing (Greg Paterson)",brand:"Just Coolers",items:"100 stubby coolers",status:"On hold: awaiting customer proof approval. Proof emailed 20 Oct, no reply yet."},
+ {so:"SO-23288",cust:"Dan Mercer, Mercer Plumbing",brand:"Name Badges Australia",items:"40 engraved badges",status:"Delivered. Proof approved 14 Oct showing the name spelled \"Mercr Plumbing\"."},
+ {so:"SO-23305",cust:"Northside Medical Centre (Daniel Okafor)",brand:"Name Badges Australia",items:"30 printed badges, reorder of 2025 artwork",status:"Delivered Monday. Production note: printed on new badge stock this run."},
+ {so:"SO-23292",cust:"Brennan's Bottle Shop (Kylie Brennan)",brand:"Just Coolers",items:"300 stubby coolers",status:"Delivered. Care card included: hand wash only, not dishwasher safe."},
+ {so:"SO-23318",cust:"Kerr Family Reunion (Natasha Kerr)",brand:"Just Coolers",items:"80 stubby coolers",status:"Ordered Monday. In production since 7am today."},
+ {so:"SO-23285",cust:"Walsh Accounting (Peter Walsh)",brand:"Name Badges Australia",items:"40 badges, $640",status:"Payment: one charge of $640 settled. A $640 pre-authorisation was released on 1 Nov."},
+ {so:"SO-23240",cust:"Gold Coast Rowing Club (Wendy Cho)",brand:"Just Coolers",items:"200 navy stubby coolers, 1-colour white logo",status:"Delivered March 2026. Artwork file: GCRC_logo_white.ai."},
+ {so:"SO-23308",cust:"Grant Real Estate (Sophie Grant)",brand:"Name Badges Australia",items:"30 printed badges",status:"Dispatched 4 days ago, Australia Post. Delivered today."},
+ {so:"SO-23311",cust:"Mackenzie Motors (Ian Mackenzie)",brand:"Name Badges Australia",items:"50 magnetic badges",status:"Dispatched 6 days ago. Delivered 3 days ago."},
+ {so:"SO-23263",cust:"Benedetti Catering (Carla Benedetti)",brand:"Name Badges Australia",items:"60 printed badges",status:"Dispatched 26 days ago. Delivered."},
+ {so:"SO-23314",cust:"Mills Fitness (Jordan Mills)",brand:"Name Badges Australia",items:"15 printed badges",status:"Dispatched yesterday to a parcel locker, StarTrack. Tracking ST88104523. Dispatch email sent to jordan@millsfitnes.com.au."},
+ {so:"SO-23297",cust:"Glow Beauty Bar, Pacific Fair (Tash Nguyen)",brand:"Name Badges Australia",items:"12 printed badges",status:"Dispatched 18 days ago. Customer chose UNTRACKED shipping. No tracking available."},
+ {so:"SO-23274",cust:"Wattle Grove Childcare (Sam Kelly)",brand:"Name Badges Australia",items:"25 magnetic badges",status:"Delivered 3 weeks ago."},
+ {so:"SO-23279",cust:"Pacific Freight Logistics (Rob Castellano)",brand:"Name Badges Australia",items:"200 safety breakaway lanyards",status:"Delivered last month."},
+ {so:"SO-23283",cust:"Harbourside Fun Run (Leanne Firth)",brand:"Name Badges Australia",items:"80 pin-back volunteer badges",status:"Delivered last week."},
+ {so:"SO-23320",cust:"Riverside Netball Club (Gina Park)",brand:"Just Coolers",items:"150 navy stubby coolers",status:"Proof approved yesterday. In production since 8am today."},
+];
+
+const PRI=["Urgent","High","Normal","Low"];
+const OTHER="Other (describe)";
+// The live Help Center FAQ, as candidates would find it.
+const FAQ=[
+ ["When will my order be dispatched?","Typically within 5 days."],
+ ["How long does shipping take?","We ship from Helensvale, QLD. Standard shipping takes 3–5 business days on average, express 1–2 days. Regional and remote postcodes may take longer."],
+ ["How do I track my order?","When the order is dispatched, we email the customer a notification with their parcel tracking code."],
+ ["What is your return policy?","Because products are custom, change-of-mind refunds aren't possible, but faulty products are always replaced. The customer emails info@namebadgesaustralia.com.au with their order number and details of the faulty items within 14 days of dispatch. Customer Service then issues a Return Authorisation (RMA) number and the return address. Items must be securely packed, include the RMA number, and arrive back within 14 days of the RMA being issued. Return postage is at the customer's cost."],
+ ["What if my item arrives damaged?","Email within 14 days of dispatch with a photo, and we'll send a replacement as soon as possible. (Agents: replacements need Rich's approval before you promise one.)"],
+ ["Can I change or cancel my order?","Yes, within 1 hour of placing it. After that the order is in fulfilment."],
+ ["Do you ship internationally?","Australia and New Zealand only."],
+ ["Which couriers do you use?","A panel of couriers. About 90% of orders go with Australia Post. Australia Post-only locations such as parcel lockers and PO Boxes are delivered by Australia Post or StarTrack. Urgent orders should choose Express Post."],
+ ["Is my payment information secure?","Yes. Payments go through Stripe and we never store card details."],
+ ["How do I place a bulk order?","Use the bulk order feature in the product customiser, or email info@namebadgesaustralia.com.au for a bespoke quote."],
+ ["Fully custom, large-volume or ongoing orders","Handled by our sister company, The Signal Group: custom name badges, large volumes, unique items, sourcing, premium specs, volume pricing and dedicated reordering portals. Quotes: salessupport@thesignalgroup.com.au or 07 5519 3637."],
+ ["How do I log in to view past orders?","Go to account.namebadgesaustralia.com and enter your email address. A short code is emailed to you to log in. There's no password."],
+ ["How do I get orders from the old website?","Full Colour Badges is now Full Colour Branding, on a new website. The returning customers page (namebadgesaustralia.com/pages/returning-customers) has a step-by-step guide to recreating old templates in the new customiser. Past order details and templates are available by emailing info@namebadgesaustralia.com.au."],
+ ["Contact and hours","07 3114 2204 · salessupport@thesignalgroup.com.au · 10 Millennium Circuit, Helensvale QLD 4212. Office Mon–Fri 8am–5pm. Showroom Mon–Fri 9am–4pm, no appointment needed."],
+ ["Job enquiries, donations and sponsorships","Customers are asked to email us. Forward these to Rich."],
+];
+const FAQ_HTML=`<div class="faq">${FAQ.map(([q,a])=>`<div><b>${q}</b><p>${a}</p></div>`).join("")}</div>`;
+const TIMES=["Mon 3:48pm","Mon 4:12pm","Mon 5:47pm","Mon 6:30pm","Mon 7:05pm","Mon 8:20pm","Mon 9:02pm","Mon 10:15pm","Today 7:40am","Today 7:52am","Today 8:10am","Today 8:31am"];
+const ALL = {}; // id -> ticket (main, dup, follow, extra)
+POOL.forEach(t=>{ALL[t.id]=t;
+  if(t.dup)ALL[t.dup.id]={...t.dup,slot:"dup",w:t.w-1,pri:t.pri,parent:t.id,
+    q:[{cat:"a",trap:"Merged the duplicate follow-up",p:"What do you do with this ticket?",o:[
+      {t:"Reply separately with the same update you sent the first contact.",pts:1},
+      {t:"Merge it into {#parent} so the conversation stays in one place, and reply to both there.",pts:2,trap:true},
+      {t:"Close it. The first ticket covers it.",pts:0}]}],
+    h:[["Merge into {#parent}",2],["Reply by email with an update",1],["Call to discuss",1]]};
+  if(t.follow)ALL[t.follow.id]={...t.follow,curve:true,parent:t.id,q:[t.follow.q]};});
+EXTRA.forEach(x=>{ALL[x.t.id]={...x.t,curve:true,requires:x.requires,q:[x.q],h:x.h};});
+const byId=id=>ALL[id];
+// Fill {#parent}, {#self} and {first} using this session's ticket numbers.
+function fmt(text,id,num){
+  const t=ALL[id]||{};const n=num||S.num||{};
+  return String(text).replace(/\{#parent\}/g,"#"+(n[t.parent]||t.parent)).replace(/\{#self\}/g,"#"+(n[id]||id)).replace(/\{first\}/g,(t.from||"").split(" ")[0]);
+}
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+// Draw one ticket per theme and lay out the queue in a random arrival order (follow-ups always after the original).
+function drawSession(){
+  const bySlot={};POOL.forEach(t=>(bySlot[t.slot]??=[]).push(t));
+  const picks=SLOTS.filter(s=>s!=="dup").map(s=>bySlot[s][Math.floor(Math.random()*bySlot[s].length)]);
+  const dl=picks.find(t=>t.slot==="deadline");
+  let ids=shuffle(picks.map(t=>t.id));
+  const dupId=dl.dup.id;const pi=ids.indexOf(dl.id);
+  const slotAfter=pi+1+Math.floor(Math.random()*(ids.length-pi)); ids.splice(Math.min(slotAfter,ids.length),0,dupId);
+  const num={},rec={};ids.forEach((id,i)=>{num[id]=4101+i;rec[id]=TIMES[i];});
+  const safety=picks.find(t=>t.slot==="safety");
+  const pool=shuffle(EXTRA.filter(x=>!x.requires||ids.includes(x.requires)).map(x=>x.t.id));
+  const used=new Set(ids.map(id=>ALL[id].order).filter(Boolean));
+  const decoys=shuffle(ORDERS.filter(o=>!used.has(o.so)).map(o=>o.so)).slice(0,3);
+  return {set:ids,num,rec,deadline:dl.id,safety:safety.id,follow:safety.follow.id,pool,decoys};
+}
+// The ideal order for this queue: highest w first, ties by arrival.
+const modelOrder=set=>[...set].sort((a,b)=>(ALL[b].w-ALL[a].w)||set.indexOf(a)-set.indexOf(b));
+
+
+// ---------- state ----------
+const PIN_HASH="08103202cf42e3a6f06ead35f9a9bf11a077d0eff1e8170ce73f0f5f19ded4f7";
+const S = {stage:"brief",code:"",codeErr:"",unlocked:false,pinErr:"",ack:false,name:"",mins:25,start:0,order:[],pri:{},open:{},current:null,answers:{},done:[],seq:[],cb1:null,cb1Shown:false,cb2Shown:false,queue:[],sideTab:"orders",result:null,saved:null,pool:[],arrived:[],pending:[],nextDrop:300,set:[],num:{},rec:{},deadline:null,safety:null,follow:null,decoys:[],nextNum:4101};
+let tick=null, db=null, user=null, canEdit=false;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dn=(id,num)=>"#"+((num||S.num||{})[id]||id);
+const elapsed=()=>S.start?(Date.now()-S.start)/1000:0;
+
+// ---------- capabilities ----------
+(async()=>{try{
+  db = await window.claude?.use?.("db") ?? null;
+  user = await window.claude?.use?.("user") ?? null;
+  canEdit = user ? await user.canEdit() : false;
+  if(S.stage==="setup"||S.stage==="brief") render();
+}catch(e){}})();
+
+// Assessor can send a link ending #t35 for a 35-minute session.
+(()=>{const m=(location.hash||"").match(/^#t(15|25|35|45)$/);if(m)S.mins=+m[1];})();
+// ---------- render ----------
+function render(){
+  const app=$("#app");
+  $("#stageLabel").textContent={setup:"Assessor setup",brief:"Your briefing",history:"Saved results",triage:"Step 1 of 2 · Triage the queue",work:"Step 2 of 2 · Work your tickets",done:"Finished",results:"Assessor results"}[S.stage];
+  $("#whoLabel").textContent=S.name?("Agent: "+S.name):"";
+  $("#timer").hidden=!(S.stage==="triage"||S.stage==="work");
+  $("#finishBtn").hidden=S.stage!=="work";
+  if(S.stage==="setup") app.innerHTML=S.unlocked?setupView():pinView("Assessor setup","Enter the assessor PIN to set up a candidate.");
+  if(S.stage==="brief") app.innerHTML=briefView();
+  if(S.stage==="triage") app.innerHTML=triageView();
+  if(S.stage==="work") app.innerHTML=workView();
+  if(S.stage==="done") app.innerHTML=doneView();
+  if(S.stage==="results") app.innerHTML=S.unlocked?resultsView(S.result):pinView("Assessor results","Enter the assessor PIN to see the results.");
+  if(S.stage==="history") app.innerHTML=S.unlocked?historyView():pinView("Saved results","Enter the assessor PIN to see saved results.");
+  bind();
+}
+
+function pinView(title,msg){
+  return `<section class="panel" style="max-width:520px;margin:40px auto">
+   <span class="eyebrow">Assessors only</span><h1>${title}</h1><p class="muted">${msg}</p>
+   <form id="pinForm" class="pinrow"><label for="pin" class="label" style="flex-basis:100%">Assessor PIN</label>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off"><button class="btn primary">Unlock</button></form>
+   ${S.pinErr?`<p class="err" role="alert">${esc(S.pinErr)}</p>`:""}
+   <button class="linkish" id="pinBack">Back</button></section>`;
+}
+
+function setupView(){
+  return `<div class="intro">
+   <section class="panel">
+    <span class="eyebrow">Assessor setup</span>
+    <h1>Set up the next candidate</h1>
+    <p class="muted" style="max-width:62ch">Enter the candidate's name and the time limit, then hand the laptop over. The candidate sees a full briefing before the timer starts. Results stay behind this PIN, and the page locks again as soon as you hand over.</p>
+    <div class="field"><label for="cand">Candidate's full name (optional, they can type it themselves)</label><input id="cand" autocomplete="off" value="${esc(S.name)}" placeholder="e.g. Alex Morgan"></div>
+    <div class="field"><label for="mins">Time limit</label>
+     <select id="mins"><option value="25"${S.mins==25?" selected":""}>25 minutes (recommended)</option><option value="35"${S.mins==35?" selected":""}>35 minutes</option></select></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="handover">Lock and show the candidate briefing</button>
+    ${canStore()?`<button class="btn" id="hist">View all results</button>`:""}</div>
+   </section>
+   <section class="panel">
+    <h2>Remote interview</h2>
+    <ol class="steps">
+     <li>Share this page from its Share menu with a link anyone can open, then send the candidate the link. For 35 minutes, add <span class="mono">#t35</span> to the end of the link.</li>
+     <li>On the video call, ask them to share their screen for the whole exercise.</li>
+     <li>They read the briefing, enter their name and start the timer themselves.</li>
+     <li>When they finish, their results save automatically and appear under View all results. If saving fails, they'll see a results code to paste into the call chat, and you paste it below.</li>
+    </ol>
+    <div class="field"><label for="pasteCode" class="label">Open a candidate's results code</label>
+     <textarea id="pasteCode" rows="3" class="codebox" placeholder="TSG1-…">${esc(S.pasted||"")}</textarea>
+     ${S.codeErr?`<p class="err" role="alert">${esc(S.codeErr)}</p>`:""}
+     <button class="btn primary" id="loadCode" style="align-self:flex-start">Show results</button></div>
+   </section>
+   <section class="panel wide">
+    <h2>What happens next</h2>
+    <ol class="steps">
+     <li>The candidate reads the briefing and ticks that they understand it.</li>
+     <li>They start the timer themselves, triage 12 tickets, then work them one by one.</li>
+     <li>Each candidate gets a different queue: one ticket from each of 12 themes, drawn at random. A phone message, a follow-up on the safety ticket and a new ticket every 5 minutes arrive automatically.</li>
+     <li>When time runs out or they finish, their answers are saved. Unlock with your PIN to see the score, red flags and written reply.</li>
+    </ol>
+   </section></div>`;
+}
+
+function briefView(){
+  return `<div style="display:flex;flex-direction:column;gap:16px">
+   <section class="panel">
+    <span class="eyebrow">Your briefing · read before you start</span>
+    <h1>Welcome${S.name.trim()?", "+esc(S.name.trim().split(" ")[0]):""}. Today you're a Customer Service Officer at <em>The Signal Group</em>.</h1>
+    <p class="muted" style="max-width:70ch">The Signal Group runs Just Coolers (custom printed stubby coolers) and Name Badges Australia (printed, engraved and magnetic name badges). We're based in Helensvale on the Gold Coast, and our support team works in Zendesk. It's Tuesday, 9:00am, and a colleague has called in sick. Their queue of 12 open tickets is now yours.</p>
+   </section>
+   <div class="brief">
+    <section class="panel"><h3><span class="num">01</span>What you need to do</h3>
+     <ul><li><b>Step 1, triage.</b> Read all 12 tickets. Put them in the order you'd handle them (1 = first) and give each a Zendesk priority: Urgent, High, Normal or Low.</li>
+      <li><b>Step 2, work your tickets.</b> Open each ticket and choose what you'd do. One ticket also asks you to write a reply in your own words.</li>
+      <li><b>Handle interruptions.</b> New tickets and messages will land in your queue about every five minutes. Decide where each one fits, then carry on.</li></ul></section>
+    <section class="panel"><h3><span class="num">02</span>The parameters</h3>
+     <ul><li>You have <b>${S.mins} minutes</b>. The timer starts when you press Start and can't be paused.</li>
+      <li>Once you lock your triage you can't go back and change it.</li>
+      <li>Answers on a ticket lock when you press Submit and solve.</li>
+      <li>You can work tickets in any order, but we'll see the order you chose.</li>
+      <li>Tickets you don't reach aren't scored, so keep moving. When time runs out, the exercise ends.</li>
+      <li>Use the <b>Order lookup</b>, <b>Policies</b> and <b>FAQ</b> tabs beside every ticket. Customers sometimes get details wrong.</li></ul></section>
+    <section class="panel"><h3><span class="num">03</span>Rules of engagement</h3>
+     <ul><li><b>Rich Till is your escalation point.</b> He approves refunds, credits and free reprints (with Finance), and handles privacy requests, difficult customers and outages.</li>
+      <li><b>Product safety:</b> escalate to Jamie Hassard straight away. Don't give medical or technical advice. Tell the customer to stop using the product and keep it.</li>
+      <li><b>Media or legal enquiries:</b> forward to Mel Liu. Agents never comment.</li>
+      <li><b>Bank or payment detail changes:</b> never action them from an email. Forward to Finance and flag to Rich.</li>
+      <li><b>Approved proofs are final.</b> Any goodwill gesture needs Rich's approval, so never promise one.</li>
+      <li><b>Duplicates:</b> merge into the oldest ticket.</li>
+      <li><b>Passwords and card details:</b> never ask for or send a password, and never take card details by email.</li>
+      <li><b>Help Center FAQ:</b> the FAQ tab beside every ticket has our dispatch times, shipping, returns, cancellations and login help. Use it.</li>
+      <li><b>Help Center:</b> link an article when it answers the question, for example How to Order Online or Artwork approval process.</li>
+      <li><b>Tone:</b> professional but casual. Use the customer's first name.</li></ul></section>
+    <section class="panel"><h3><span class="num">04</span>Service levels (SLAs)</h3>
+     <p class="muted">How quickly each priority must get a first reply and be resolved. Sales quotes run on a tighter first-reply target.</p>
+     <div class="scroll"><table class="sla"><tr><th></th><th>Urgent</th><th>High</th><th>Normal</th><th>Low</th></tr>
+      <tr><td>First reply</td><td>1h</td><td>6h</td><td>24h</td><td>48h</td></tr>
+      <tr><td>Sales quote first reply</td><td>30m</td><td>2h</td><td>4h</td><td>8h</td></tr>
+      <tr><td>Total resolution</td><td>4h</td><td>12h</td><td>72h</td><td>100h</td></tr></table></div></section>
+    <section class="panel wide"><h3><span class="num">05</span>How you'll be assessed</h3>
+     <ul><li><b>Prioritisation:</b> what you handle first, and the priority you give each ticket.</li>
+      <li><b>Accuracy:</b> whether you check the details against the order lookup and the policies.</li>
+      <li><b>Judgement:</b> knowing what you can decide yourself and what you must escalate.</li>
+      <li><b>Adapting to change:</b> how you respond when something new comes in.</li>
+      <li><b>Writing:</b> your reply to an unhappy customer.</li></ul>
+     <p class="muted">Nobody gets everything right. Work the way you would on a real shift.</p></section>
+   </div>
+   <section class="startbar">
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0;flex:1 1 320px">
+     <div class="field"><label for="bname" style="color:#fff;font-weight:600">Your full name</label><input id="bname" autocomplete="name" value="${esc(S.name)}" placeholder="e.g. Alex Morgan" style="max-width:360px"></div>
+     <label class="ack" for="ack"><input type="checkbox" id="ack" ${S.ack?"checked":""}>I've read the briefing and I'm ready to start the timer.</label></div>
+    <button class="btn primary" id="go" ${S.ack&&S.name.trim()?"":"disabled"}>Start the ${S.mins}-minute timer</button>
+   </section>
+   <button class="linkish" id="toSetup" style="align-self:flex-start">Assessor area</button>
+  </div>`;
+}
+
+function triageView(){
+  const rows=S.order.map((id,i)=>{const t=byId(id),p=S.pri[id]||"";return `<div class="trow">
+    <div class="rank">${i+1}</div>
+    <div class="tmain">
+     <div class="tmeta"><span class="mono">${dn(id)}</span><span>${esc(t.from)}${t.org?" · "+esc(t.org):""}</span><span class="chip">${esc(t.ch)}</span><span>${esc(S.rec[id]||"")}</span></div>
+     <div class="tsubj">${esc(t.subj)}</div>
+     <div class="tbody">${esc(t.body)}</div>
+    </div>
+    <div class="tctrl">
+     <select data-pri="${t.id}" class="${p?"":"unset"}" aria-label="Priority for ticket ${dn(id)}"><option value="">Priority…</option>${PRI.map(x=>`<option${x===p?" selected":""}>${x}</option>`).join("")}</select>
+     <div class="moves"><button data-up="${i}" ${i===0?"disabled":""} aria-label="Move up">↑</button><button data-down="${i}" ${i===S.order.length-1?"disabled":""} aria-label="Move down">↓</button></div>
+    </div></div>`}).join("");
+  const left=S.order.filter(id=>!S.pri[id]).length;
+  return `<div class="desk" style="grid-template-columns:minmax(0,1fr) 340px">
+   <div style="min-width:0">
+    <div class="triage-head"><div><h2>Your queue: 12 open tickets</h2><p class="muted">Read each ticket, use the arrows to put the one you'd handle first at the top, then set every priority.</p></div>
+     <button class="btn primary" id="toWork" ${left?"disabled":""}>${left?`Set ${left} more ${left===1?"priority":"priorities"}`:"Lock triage and start working"}</button></div>
+    <div class="tlist">${rows}</div>
+   </div>
+   ${sideView()}</div>`;
+}
+
+function sideView(){
+  const cur=S.current?byId(S.current):null;
+  const refs=new Set([...S.set,...S.arrived].map(id=>ALL[id]?.order).filter(Boolean).concat(S.decoys||[]));
+  const orders=ORDERS.filter(o=>refs.has(o.so)).map(o=>`<div class="order ${cur&&cur.order===o.so?"hit":""}"><b>${o.so}</b><span>${esc(o.cust)}</span><span class="muted">${esc(o.brand)} · ${esc(o.items)}</span><span>${esc(o.status)}</span></div>`).join("");
+  const pol=`<ul class="pol">
+   <li><b>Escalation point: Rich Till.</b> Refunds, credits, replacements and free reprints need approval from Rich or Finance before you promise them. Rich also handles privacy requests, difficult customers and outages.</li>
+   <li><b>Product safety:</b> escalate to Jamie Hassard straight away. No medical or technical advice; tell the customer to stop using the product and keep it.</li>
+   <li><b>Media or legal:</b> forward to Mel Liu. Agents don't comment.</li>
+   <li><b>Bank or payment detail changes:</b> never action from an email. Forward to Finance and flag to Rich.</li>
+   <li><b>Approved proofs are final.</b> Goodwill gestures need Rich's approval.</li>
+   <li><b>Duplicates:</b> merge into the oldest ticket.</li>
+   <li><b>Untracked shipping (name badges):</b> if a customer chose untracked shipping and the badges go missing, we don't remake them free of charge. The customer accepted that risk. Recommend tracked shipping, especially for shopping-centre stores.</li>
+   <li><b>Returns (faulty items only):</b> no change-of-mind refunds. Faulty items must be reported within 14 days of dispatch. Once approved, Customer Service issues an RMA number; the item comes back securely packed within 14 days, at the customer's postage cost.</li>
+   <li><b>Bulk orders and freight quotes:</b> customers can use the bulk feature in the product customiser, or Sales sends a bespoke quote.</li>
+   <li><b>Fully custom, large-volume or ongoing orders:</b> route to The Signal Group sales team (tag Sales Account Manager). They offer volume pricing, sourcing and dedicated reordering portals. Quotes: salessupport@thesignalgroup.com.au or 07 5519 3637.</li>
+   <li><b>Careers, donations and sponsorships:</b> forward to Rich. Don't make promises.</li>
+   <li><b>Help Center articles:</b> How to Order Online, Artwork approval process (file types and artwork specs), Our Returns Policy, Trading Terms & Conditions.</li>
+   <li><b>Passwords and card details:</b> never ask for or send a password, and never take card details by email. Customer accounts log in with an emailed code, not a password.</li>
+   <li><b>Tags:</b> JustCoolers, badgeproduction, badgeDispatch, EngravedProduction, Sales Account Manager.</li>
+  </ul>
+  <div class="scroll"><table class="sla"><caption class="label" style="text-align:left;padding-bottom:4px">SLAs</caption><tr><th></th><th>Urgent</th><th>High</th><th>Normal</th><th>Low</th></tr>
+   <tr><td>First reply</td><td>1h</td><td>6h</td><td>24h</td><td>48h</td></tr>
+   <tr><td>Sales quote reply</td><td>30m</td><td>2h</td><td>4h</td><td>8h</td></tr>
+   <tr><td>Resolution</td><td>4h</td><td>12h</td><td>72h</td><td>100h</td></tr></table></div>`;
+  return `<aside class="side"><div class="tabs" role="tablist">
+   <button role="tab" data-tab="orders" aria-selected="${S.sideTab==="orders"}">Order lookup</button>
+   <button role="tab" data-tab="policy" aria-selected="${S.sideTab==="policy"}">Policies</button>
+   <button role="tab" data-tab="faq" aria-selected="${S.sideTab==="faq"}">FAQ</button></div>
+   <div class="sidebody">${S.sideTab==="orders"?orders:S.sideTab==="faq"?FAQ_HTML:pol}</div></aside>`;
+}
+
+function workView(){
+  const q=S.queue.map(id=>{const t=byId(id),done=S.done.includes(id);return `<button class="qitem ${S.current===id?"active":""}" data-open="${id}">
+   <span class="m"><span class="mono">${dn(id)}</span>${t.curve&&!done?`<span class="chip new">New</span>`:""}${done?`<span class="chip done">Solved</span>`:(S.pri[id]?`<span class="pri ${S.pri[id]}">${S.pri[id]}</span>`:"")}</span>
+   <span class="s">${esc(t.subj)}</span><span class="m">${esc(t.from)}</span></button>`}).join("");
+  const remaining=S.queue.filter(id=>!S.done.includes(id)).length;
+  return `<div class="desk">
+   <nav class="queue" aria-label="Ticket queue"><h3><span>My open tickets</span><span class="muted">${remaining} left</span></h3>${q}</nav>
+   ${S.current?ticketView(S.current):`<section class="ticket"><div class="empty">Pick a ticket from your queue to start.</div></section>`}
+   ${sideView()}</div>`;
+}
+
+function ticketView(id){
+  const t=byId(id),qs=t.q,done=S.done.includes(id),ans=S.answers[id]||{};
+  const hOk=ans.h!=null&&ans.h!==""&&(ans.h!=="o"||(ans.ho||"").trim());
+  const ready=hOk&&qs.every((q,i)=>q.cat==="w"?true:ans[i]!=null);
+  const hopts=t.h||[];
+  const hhtml=`<div class="q"><label class="label" for="h${id}">How would you handle this ticket?</label>
+    <select id="h${id}" data-h="${id}" class="hsel" ${done?"disabled":""}><option value="">Choose how you'd handle it…</option>${hopts.map((o,j)=>`<option value="${j}" ${String(ans.h)===String(j)?"selected":""}>${esc(fmt(o[0],id))}</option>`).join("")}<option value="o" ${ans.h==="o"?"selected":""}>${OTHER}</option></select>
+    ${ans.h==="o"?`<input id="ho${id}" data-ho="${id}" class="hother" ${done?"readonly":""} value="${esc(ans.ho||"")}" placeholder="Describe how you'd handle it" aria-label="Describe how you'd handle ticket ${dn(id)}">`:""}</div>`;
+  const first=(t.from||"").split(" ")[0];
+  const qhtml=hhtml+qs.map((q,i)=>q.cat==="w"
+    ?`<div class="q"><label class="label" for="w${id}">${esc(fmt(q.p,id))}</label><textarea id="w${id}" data-w="${id}" ${done?"readonly":""} placeholder="Hi ${esc(first)},">${esc(ans.w||"")}</textarea></div>`
+    :`<div class="q"><fieldset ${done?"disabled":""}><legend>${esc(fmt(q.p,id))}</legend>${q.o.map((o,j)=>`<label class="opt ${ans[i]===j?"sel":""}"><input type="radio" name="q${id}_${i}" data-q="${id}" data-i="${i}" value="${j}" ${ans[i]===j?"checked":""}><span>${esc(fmt(o.t,id))}</span></label>`).join("")}</fieldset></div>`).join("");
+  const initials=t.from.split(/[\s@.]/).filter(Boolean).slice(0,2).map(s=>s[0].toUpperCase()).join("");
+  return `<section class="ticket ${done?"locked":""}">
+   <div class="thead"><div class="tmeta"><span class="mono">${dn(id)}</span><span class="chip">${esc(t.brand)}</span><span class="chip">${esc(t.ch)}</span>${S.pri[id]?`<span class="pri ${S.pri[id]}">${S.pri[id]}</span>`:""}${done?`<span class="chip done">Solved</span>`:""}</div><h2>${esc(t.subj)}</h2></div>
+   <div class="convo"><div class="avatar">${esc(initials)}</div><div class="msg"><span class="who"><b>${esc(t.from)}</b>${t.org?" · "+esc(t.org):""} <span class="muted">· ${esc(S.rec[id]||"")}</span></span><div class="text">${esc(t.body)}</div></div></div>
+   <div class="quiz">${qhtml}
+    <div class="qfoot"><span class="muted">${done?"Submitted. You can't change this ticket now.":"Answers lock when you submit."}</span>
+    ${done?"":`<button class="btn primary" id="submitT" ${ready?"":"disabled"}>Submit and solve</button>`}</div></div></section>`;
+}
+
+function doneView(){
+  return `<section class="panel" style="max-width:640px;margin:40px auto">
+   <span class="label">Shift complete</span><h1>Thanks, ${esc(S.name.split(" ")[0]||"")}. That's the end of the exercise.</h1>
+   <p class="muted">Please let your interviewer know you've finished. They'll talk through your choices with you next.</p>
+   ${S.saved===true?`<p class="chip done" style="align-self:flex-start">Your answers have been sent to your interviewer.</p>`:S.saved===null?`<p class="muted">Sending your answers…</p>`:`
+   <div class="field"><label class="label" for="rcode">Your results code</label>
+    <p>Copy this code and paste it into the chat with your interviewer (Teams, Zoom or email). Don't close this page until they confirm they have it.</p>
+    <textarea id="rcode" readonly rows="4" class="codebox">${esc(S.code)}</textarea>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary" id="copyCode">Copy code</button><span id="copyMsg" class="muted" role="status"></span></div></div>`}
+   <button class="linkish" id="showRes" style="align-self:flex-start">Assessor: unlock results</button></section>`;
+}
+
+function resultsView(r){
+  if(!r) return `<div class="empty">No results.</div>`;
+  if(!r.set) return `<section class="panel"><h2>${esc(r.name||"Result")}</h2><p class="muted">This result was saved by an older version of the exercise and can't be shown in detail. Score: ${Math.round(r.total||0)} / 100.</p><button class="btn" id="backStart">Back to setup</button></section>`;
+  const N=r.num||{},D=id=>dn(id,N),F=(txt,id)=>fmt(txt,id,N);
+  const bar=(name,v,max)=>`<div class="bar"><span class="label">${name}</span><span><b class="mono" style="font-size:22px">${Math.round(v)}</b><span class="muted"> / ${max}</span></span><div class="track"><div class="fill" style="width:${Math.max(0,Math.min(100,v/max*100))}%"></div></div></div>`;
+  const model=modelOrder(r.set);
+  const ord=r.order.map((id,i)=>{const t=ALL[id],m=model.indexOf(id)+1,diff=Math.abs(m-(i+1));const okPri=r.pri[id]===t.pri||(t.alt||[]).includes(r.pri[id]);
+    return `<tr><td class="mono">${i+1}</td><td class="mono">${D(id)}</td><td>${esc(t.subj)}</td><td class="mono ${diff<=1?"good":diff>=4?"bad":""}">${m}</td><td class="${okPri?"good":""}">${r.pri[id]||"—"}${okPri?"":` <span class="muted">(ideal: ${t.pri})</span>`}</td></tr>`}).join("");
+  const arr=r.arrived||[];
+  const best=list=>list.reduce((b,x)=>(x.pts??x[1])>(b.pts??b[1])?x:b);
+  const det=[...r.set,...arr].map(id=>{const t=ALL[id],a=r.answers[id]||{};return t.q.map((q,i)=>{if(q.cat==="w")return "";const j=a[i];const o=j!=null?q.o[j]:null;const b=best(q.o);
+    return `<tr><td class="mono">${D(id)}</td><td>${o?esc(F(o.t,id)):`<span class="muted">Not reached</span>`}</td><td class="${o&&o.pts===2?"good":o&&o.pts===0?"bad":""}">${o?o.pts+"/2":"—"}</td><td class="muted">${o&&o.pts===2?"":esc(F(b.t,id))}</td></tr>`}).join("")}).join("");
+  const hdet=[...model,...arr].map(id=>{const t=ALL[id],a=r.answers[id];const b=best(t.h);
+    if(!a)return `<tr><td class="mono">${D(id)}</td><td><span class="muted">Not reached</span></td><td>—</td><td class="muted">${esc(F(b[0],id))}</td></tr>`;
+    if(a.h==="o")return `<tr><td class="mono">${D(id)}</td><td>Other: ${esc(a.ho||"")}</td><td>Review</td><td class="muted">${esc(F(b[0],id))}</td></tr>`;
+    const o=t.h[a.h];return `<tr><td class="mono">${D(id)}</td><td>${o?esc(F(o[0],id)):"—"}</td><td class="${o&&o[1]===2?"good":o&&o[1]===0?"bad":""}">${o?o[1]+"/2":"—"}</td><td class="muted">${o&&o[1]===2?"":esc(F(b[0],id))}</td></tr>`;}).join("");
+  const cbDef=ALL[r.deadline].cb1;const cb1=r.cb1!=null?cbDef.o[r.cb1]:null;
+  const wId=r.set.find(id=>ALL[id].q.some(q=>q.cat==="w"));
+  return `<div style="display:flex;flex-direction:column;gap:20px">
+   <div class="score-hero"><div><span class="label">${esc(r.name)} · ${new Date(r.finishedAt).toLocaleString("en-AU",{dateStyle:"medium",timeStyle:"short"})}</span><div class="big">${Math.round(r.total)}<span class="muted" style="font-size:24px"> / 100</span></div></div>
+    <div class="muted" style="max-width:52ch">Auto-scored from their choices. Score the written reply yourself using the rubric's "Written responses" criterion. ${r.complete?"Finished all tickets":"Ran out of time or finished early"} in ${Math.floor(r.secs/60)}m ${String(Math.round(r.secs%60)).padStart(2,"0")}s. Each candidate gets a different mix of tickets, one from every theme.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="backStart">Back to setup</button>${r._fromCode&&canStore()&&!r._saved?`<button class="btn primary" id="saveCode">Save to results list</button>`:""}${r._saved&&r._fromCode?`<span class="chip done">Saved</span>`:""}${canStore()?`<button class="btn" id="hist">All saved results</button>`:""}</div></div>
+   <div class="bars">${bar("Prioritisation",r.parts.prio,30)}${bar("Accuracy",r.parts.acc,25)}${bar("Judgement",r.parts.judg,25)}${bar("Adaptability",r.parts.adapt,20)}</div>
+   ${r.flags.length?`<section style="display:flex;flex-direction:column;gap:8px"><h3>Red flags (${r.flags.length})</h3>${r.flags.map(f=>`<div class="flag">${esc(f)}</div>`).join("")}</section>`:`<p class="chip done" style="align-self:flex-start">No red flags</p>`}
+   <section class="panel"><h3>Accuracy checks caught: ${r.traps.length} of ${r.trapsAll.length}</h3><ul class="pol">${r.trapsAll.map(x=>`<li>${r.traps.includes(x)?"✓":"✗"} ${esc(x)}</li>`).join("")}</ul></section>
+   <section class="panel"><h3>Triage order vs ideal</h3><div class="scroll"><table class="rtable"><tr><th>Their rank</th><th>Ticket</th><th>Subject</th><th>Ideal rank</th><th>Priority set</th></tr>${ord}</table></div>
+    <p class="muted">Order they actually worked tickets: ${r.seq.map(x=>D(x)).join(" → ")||"none"}</p></section>
+   <section class="panel"><h3>Curveballs</h3>
+    <p><b>Phone message (${esc(cbDef.title)}):</b> ${cb1?esc(F(cb1.t,r.deadline))+` <span class="muted">(${cb1.pts}/2)</span>`:`<span class="muted">Not answered</span>`}</p>
+    ${arr.length?arr.map(id=>{const a=r.answers[id];const o=a&&a[0]!=null?ALL[id].q[0].o[a[0]]:null;return `<p><b>${D(id)} ${esc(ALL[id].subj)}:</b> ${o?esc(F(o.t,id))+` <span class="muted">(${o.pts}/2)</span>`:`<span class="muted">Arrived but not worked</span>`}</p>`}).join(""):`<p class="muted">No new tickets arrived before the end.</p>`}
+    <p class="muted">Adaptability only counts curveballs that arrived.</p></section>
+   ${(r.review||[]).length?`<section class="panel"><h3>"Other" handling answers to review (${r.review.length})</h3><p class="muted">These weren't auto-scored. Read them and adjust the Judgement score if they're sound.</p><div class="scroll"><table class="rtable">${r.review.map(x=>`<tr><td class="mono">${D(x.id)}</td><td>${esc(x.text||"(left blank)")}</td><td class="muted">Best: ${esc(F(best(ALL[x.id].h)[0],x.id))}</td></tr>`).join("")}</table></div></section>`:""}
+   <section class="panel"><h3>Written reply to ${esc(ALL[wId].from)} (${D(wId)}: ${esc(ALL[wId].subj)})</h3><div class="tbody" style="max-width:none">${r.written?esc(r.written):"Not written"}</div></section>
+   <section class="panel"><h3>How they'd handle each ticket</h3><div class="scroll"><table class="rtable"><tr><th>Ticket</th><th>Their choice</th><th>Points</th><th>Best answer</th></tr>${hdet}</table></div></section>
+   <section class="panel"><h3>Every answer</h3><div class="scroll"><table class="rtable"><tr><th>Ticket</th><th>Their choice</th><th>Points</th><th>Best answer</th></tr>${det}</table></div></section>
+  </div>`;
+}
+
+let HIST=[], histUnsub=null, histTimer=null, histNote="Loading saved results…";
+// On our own Cloudflare Worker, results are saved through its /api/results endpoint (window.__SIGNAL_API__ is set by the Worker).
+const API_MODE=!!window.__SIGNAL_API__;
+const canStore=()=>API_MODE||!!db;
+const fmtDate=t=>new Date(t).toLocaleString("en-AU",{dateStyle:"medium",timeStyle:"short"});
+function historyView(){
+  const q=(S.histQ||"").trim().toLowerCase();
+  const rows=HIST.map(h=>`<tr data-name="${esc((h.name||"").toLowerCase())}" ${q&&!(h.name||"").toLowerCase().includes(q)?"hidden":""}><td>${esc(h.name||"(no name)")}</td><td>${fmtDate(h.finishedAt)}</td><td class="mono">${Math.round(h.total)}</td><td class="mono">${h.flagsN}</td><td class="mono">${esc(h.trapsTxt)}</td><td><button class="btn" data-view="${esc(h._id)}">Open</button></td></tr>`).join("");
+  const shown=HIST.filter(h=>!q||(h.name||"").toLowerCase().includes(q)).length;
+  return `<section class="panel"><div class="triage-head"><div><h2>Saved results</h2><p class="muted" id="histCount">${HIST.length?`${shown} of ${HIST.length} candidates, newest first`:""}</p></div><button class="btn" id="backStart">Back to setup</button></div>
+   <div class="field" style="max-width:360px"><label for="histq">Search by candidate name</label><input id="histq" type="search" autocomplete="off" value="${esc(S.histQ||"")}" placeholder="e.g. Alex"></div>
+   ${HIST.length?`<div class="scroll"><table class="rtable"><thead><tr><th>Candidate</th><th>Finished</th><th>Score</th><th>Red flags</th><th>Accuracy checks</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="muted">${esc(histNote)}</p>`}
+   ${API_MODE?`<button class="btn ghost" id="histRefresh" style="align-self:flex-start">Refresh</button>`:""}</section>`;
+}
+const summarise=(id,r)=>({_id:id,name:r.name,finishedAt:r.finishedAt,total:r.total,flagsN:(r.flags||[]).length,trapsTxt:`${(r.traps||[]).length}/${(r.trapsAll||[]).length||7}`,_full:r});
+async function apiFetch(path,opts={}){
+  const res=await fetch(path,{...opts,headers:{"content-type":"application/json","x-assessor-pin":S.pinPlain||"",...(opts.headers||{})}});
+  if(!res.ok)throw new Error(res.status===403?"forbidden":"http "+res.status);
+  return res.json();
+}
+async function loadApiHistory(){
+  histNote="Loading saved results…";
+  try{const d=await apiFetch("/api/results");HIST=d.results.map(x=>({_id:x.id,name:x.name,finishedAt:x.finishedAt,total:x.total,flagsN:x.flags,trapsTxt:x.traps}));
+    histNote="No candidates have finished yet. Results appear here as soon as someone completes the exercise.";}
+  catch(e){histNote=e.message==="forbidden"?"The results store rejected your PIN. Check the ASSESSOR_PIN setting on the Worker.":"Saved results can't be reached right now. Try again shortly.";}
+  if(S.stage==="history")render();
+}
+function openHistory(){
+  S.stage="history"; render();
+  if(API_MODE){loadApiHistory();return;}
+  if(histUnsub||!db) return;
+  histTimer=setTimeout(()=>{histNote="Saved results can't be reached right now. Try again shortly.";if(S.stage==="history")render();},10000);
+  histUnsub=db.collection("results").orderBy("finishedAt","desc").limit(500).onSnapshot(snap=>{
+    clearTimeout(histTimer);HIST=snap.docs.map(d=>summarise(d.id,d.data()));histNote="No candidates have finished yet. Results appear here as soon as someone completes the exercise.";if(S.stage==="history")render();
+  },()=>{clearTimeout(histTimer);histNote="You don't have access to saved results.";if(S.stage==="history")render();});
+}
+async function openSaved(id){
+  const h=HIST.find(x=>x._id===id);if(!h)return;
+  if(h._full){S.result=h._full;S.stage="results";render();return;}
+  try{const d=await apiFetch("/api/results/"+encodeURIComponent(id));S.result={...scoreData(d.raw),_saved:true};S.stage="results";}
+  catch(e){histNote="That result couldn't be opened. Try again.";}
+  render();
+}
+
+// ---------- events ----------
+function bind(){
+  const on=(sel,ev,fn)=>document.querySelectorAll(sel).forEach(el=>el.addEventListener(ev,fn));
+  on("#cand","input",e=>{S.name=e.target.value;});
+  on("#pinForm","submit",async e=>{e.preventDefault();const v=$("#pin").value.trim();
+    if(await sha(v)===PIN_HASH){S.unlocked=true;S.pinErr="";S.pinPlain=v;}else{S.pinErr="That PIN isn't right. Check with the assessor running this session.";}
+    render();});
+  on("#pinBack","click",()=>{S.pinErr="";S.stage=S.code?"done":"brief";render();});
+  on("#handover","click",()=>{resetGame();S.name=S.name.trim();S.unlocked=false;S.stage="brief";render();window.scrollTo(0,0);});
+  on("#toSetup","click",()=>{S.stage="setup";render();});
+  on("#ack","change",e=>{S.ack=e.target.checked;$("#go").disabled=!(S.ack&&S.name.trim());});
+  on("#bname","input",e=>{S.name=e.target.value;$("#go").disabled=!(S.ack&&S.name.trim());});
+  on("#mins","change",e=>S.mins=+e.target.value);
+  on("#go","click",begin);
+  on("#hist","click",openHistory);
+  on("#backStart","click",()=>{S.stage="setup";render();});
+  on("[data-view]","click",e=>openSaved(e.currentTarget.dataset.view));
+  on("#histRefresh","click",loadApiHistory);
+  on("#histq","input",e=>{S.histQ=e.target.value;const q=S.histQ.trim().toLowerCase();let n=0;
+    document.querySelectorAll("tr[data-name]").forEach(r=>{const show=!q||r.dataset.name.includes(q);r.hidden=!show;if(show)n++;});
+    const c=$("#histCount");if(c)c.textContent=`${n} of ${HIST.length} candidates, newest first`;});
+    on("[data-pri]","change",e=>{S.pri[+e.target.dataset.pri]=e.target.value;render();});
+  on("[data-up]","click",e=>{const i=+e.currentTarget.dataset.up;[S.order[i-1],S.order[i]]=[S.order[i],S.order[i-1]];render();});
+  on("[data-down]","click",e=>{const i=+e.currentTarget.dataset.down;[S.order[i+1],S.order[i]]=[S.order[i],S.order[i+1]];render();});
+  on("[data-tab]","click",e=>{S.sideTab=e.currentTarget.dataset.tab;render();});
+  on("#toWork","click",()=>{S.stage="work";S.queue=[...S.pending.reverse(),...S.order];S.current=S.queue[0];S.pending=[];render();window.scrollTo(0,0);});
+  on("[data-open]","click",e=>{S.current=+e.currentTarget.dataset.open;render();});
+  on("[data-q]","change",e=>{const id=+e.target.dataset.q,i=+e.target.dataset.i;(S.answers[id]??={})[i]=+e.target.value;render();});
+  on("[data-h]","change",e=>{const a=(S.answers[+e.target.dataset.h]??={});a.h=e.target.value===""?null:(e.target.value==="o"?"o":+e.target.value);render();if(a.h==="o")$(`#ho${e.target.dataset.h}`)?.focus();});
+  on("[data-ho]","input",e=>{const id=+e.target.dataset.ho;(S.answers[id]??={}).ho=e.target.value;const b=$("#submitT");if(b){const ans=S.answers[id];b.disabled=!(e.target.value.trim()&&ALL[id].q.every((q,i)=>q.cat==="w"||ans[i]!=null));}});
+  on("[data-w]","input",e=>{(S.answers[+e.target.dataset.w]??={}).w=e.target.value;});
+  on("#submitT","click",submitTicket);
+  on("#copyCode","click",async()=>{const t=$("#rcode");try{await navigator.clipboard.writeText(S.code);$("#copyMsg").textContent="Copied. Paste it into the chat now.";}catch(e){t.focus();t.select();$("#copyMsg").textContent="Press Ctrl+C (or Cmd+C) to copy the selected code.";}});
+  on("#pasteCode","input",e=>{S.pasted=e.target.value;});
+  on("#loadCode","click",()=>{try{const raw=decodeResult($("#pasteCode").value);S.result=scoreData(raw);S.result._fromCode=$("#pasteCode").value.replace(/\s+/g,"");S.codeErr="";S.stage="results";}catch(e){S.codeErr=e.message;}render();});
+  on("#saveCode","click",async e=>{e.currentTarget.disabled=true;try{const {_fromCode,...r}=S.result;
+    if(API_MODE){const raw=decodeResult(_fromCode);const res=await fetch("/api/results",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({raw,code:_fromCode,name:r.name,total:r.total,finishedAt:r.finishedAt,flags:r.flags.length,traps:`${r.traps.length}/${r.trapsAll.length}`})});if(!res.ok)throw new Error();}
+    else await db.collection("results").doc().set({...r,code:_fromCode});
+    S.result._saved=true;}catch(err){S.codeErr="Couldn't save this result. Try again.";}render();});
+  on("#showRes","click",()=>{S.unlocked=false;S.pinErr="";S.stage="results";render();});
+}
+$("#finishBtn").addEventListener("click",()=>{
+  const left=S.queue.filter(id=>!S.done.includes(id)).length;
+  showModal(`<div class="mhead" style="border-top-color:var(--accent)"><h2>Finish now?</h2></div><div class="quiz"><p>You still have ${left} open ${left===1?"ticket":"tickets"}. Unanswered tickets score zero. You can't come back after finishing.</p><div class="qfoot"><button class="btn" id="mNo">Keep working</button><button class="btn primary" id="mYes">Finish</button></div></div>`);
+  $("#mNo").onclick=closeModal;$("#mYes").onclick=()=>{closeModal();finish();};
+});
+
+async function sha(t){try{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}catch(e){return "";}}
+function resetGame(){Object.assign(S,{code:"",codeErr:"",start:0,order:[],pri:{},open:{},current:null,answers:{},done:[],seq:[],cb1:null,cb1Shown:false,cb2Shown:false,queue:[],sideTab:"orders",result:null,saved:null,ack:false,pinErr:"",pool:[],arrived:[],pending:[],nextDrop:300,set:[],num:{},rec:{},deadline:null,safety:null,follow:null,decoys:[],nextNum:4101});}
+function begin(){
+  S.name=S.name.trim();S.stage="triage";S.start=Date.now();
+  const d=drawSession();
+  Object.assign(S,{set:d.set,order:[...d.set],num:d.num,rec:d.rec,deadline:d.deadline,safety:d.safety,follow:d.follow,pool:d.pool,decoys:d.decoys,nextNum:4101+d.set.length,nextDrop:300});
+  tick=setInterval(loop,1000);loop();render();
+}
+function submitTicket(){
+  const id=S.current;S.done.push(id);S.seq.push(id);
+  checkCurveballs();
+  const next=S.queue.find(x=>!S.done.includes(x));
+  if(!next&&S.cb1Shown&&S.cb1!=null&&S.cb2Shown) return finish();
+  S.current=next||id;render();window.scrollTo({top:0});
+}
+
+function loop(){
+  const left=Math.max(0,S.mins*60-elapsed());
+  const el=$("#timer");el.textContent=`${String(Math.floor(left/60)).padStart(2,"0")}:${String(Math.floor(left%60)).padStart(2,"0")}`;
+  el.classList.toggle("warn",left<=120);
+  checkCurveballs();
+  if(left<=0) finish();
+}
+function checkCurveballs(){
+  const e=elapsed(),total=S.mins*60,solved=S.done.length;
+  if(S.start&&e>=S.nextDrop&&S.pool.length&&total-e>90){S.nextDrop+=300;dropTicket(S.pool.shift());}
+  if(!S.cb1Shown&&(e>=total*0.4||(S.stage==="work"&&solved>=3))) phoneMessage();
+  if(!S.cb2Shown&&S.stage==="work"&&(e>=total*0.68||solved>=7||(S.cb1Shown&&S.cb1!=null&&S.queue.every(x=>S.done.includes(x))))) newTicket();
+}
+function phoneMessage(){
+  S.cb1Shown=true;const CB=ALL[S.deadline].cb1;
+  showModal(`<div class="mhead"><span class="label">Message from reception · ${new Date().toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit"})}</span><h2>${esc(CB.title)}</h2></div>
+   <div class="quiz"><div class="note">${esc(CB.note)}</div>
+   <div class="q"><fieldset><legend>What do you do now?</legend>${CB.o.map((o,j)=>`<label class="opt"><input type="radio" name="cb1" value="${j}"><span>${esc(fmt(o.t,S.deadline))}</span></label>`).join("")}</fieldset></div>
+   <div class="qfoot"><span class="muted">The clock is still running.</span><button class="btn primary" id="cbGo" disabled>Confirm</button></div></div>`);
+  document.querySelectorAll('input[name="cb1"]').forEach(r=>r.onchange=()=>{$("#cbGo").disabled=false;document.querySelectorAll("#layer .opt").forEach(l=>l.classList.toggle("sel",l.querySelector("input").checked));});
+  $("#cbGo").onclick=()=>{S.cb1=+document.querySelector('input[name="cb1"]:checked').value;closeModal();if(S.stage==="work"&&S.queue.every(x=>S.done.includes(x))){if(S.cb2Shown)finish();else checkCurveballs();}};
+}
+function newTicket(){S.cb2Shown=true;dropTicket(S.follow);}
+function dropTicket(id){
+  const tk=byId(id);S.arrived.push(id);S.num[id]=S.nextNum++;S.rec[id]="Just now";
+  if(S.stage==="work"){S.queue.unshift(id);if(!S.current||S.done.includes(S.current))S.current=id;render();}
+  else S.pending.push(id);
+  document.querySelectorAll(".toast").forEach(x=>x.remove());
+  const t=document.createElement("div");t.className="toast";t.setAttribute("role","status");
+  t.innerHTML=`<b>New ticket ${dn(id)}</b><br>${esc(tk.from)}: ${esc(tk.subj)}`;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),7000);
+}
+function showModal(html){$("#layer").innerHTML=`<div class="scrim" role="dialog" aria-modal="true"><div class="modal">${html}</div></div>`;}
+function closeModal(){$("#layer").innerHTML="";}
+
+// ---------- scoring ----------
+function scoreData(d){
+  const order=d.order,set=d.set,n=order.length,A=d.answers||{},model=modelOrder(set);
+  let dist=0;order.forEach((id,i)=>dist+=Math.abs(i-model.indexOf(id)));
+  const maxDist=Math.floor(n*n/2);
+  const rankScore=20*Math.max(0,1-dist/maxDist);
+  let priPts=0;order.forEach(id=>{const t=ALL[id],v=d.pri[id];const a=PRI.indexOf(v),m=PRI.indexOf(t.pri);priPts+=v===t.pri?1:((t.alt||[]).includes(v)||Math.abs(a-m)===1)?0.5:0;});
+  const prio=rankScore+10*priPts/n;
+  const flags=[],traps=[],trapsAll=[],review=[];let jPts=0,jMax=0,cPts=0,cMax=0;
+  for(const id of set){
+    const t=ALL[id],ans=A[id];
+    t.q.forEach((q,i)=>{if(q.cat==="w")return;const j=ans?ans[i]:null;const o=j!=null?q.o[j]:null;
+      if(q.cat==="j"){jMax+=2;jPts+=o?o.pts:0;}
+      if(q.cat==="a"){if(!trapsAll.includes(q.trap))trapsAll.push(q.trap);if(o&&o.trap&&!traps.includes(q.trap))traps.push(q.trap);}
+      if(o&&o.flag)flags.push(`${dn(id,d.num)}: ${o.flag}`);});
+    jMax+=2;
+    if(ans&&ans.h==="o")review.push({id,text:ans.ho||""});else if(ans&&ans.h!=null&&t.h[ans.h])jPts+=t.h[ans.h][1];
+  }
+  for(const id of (d.arrived||[])){
+    const t=ALL[id],ans=A[id];cMax+=4;
+    const o=ans&&ans[0]!=null?t.q[0].o[ans[0]]:null;
+    if(o){cPts+=o.pts;if(o.flag)flags.push(`${dn(id,d.num)}: ${o.flag}`);}
+    if(ans&&ans.h==="o")review.push({id,text:ans.ho||""});else if(ans&&ans.h!=null&&t.h[ans.h])cPts+=t.h[ans.h][1];
+  }
+  if(d.cb1Shown||d.cb1!=null)cMax+=2;
+  if(d.cb1!=null){const o=ALL[d.deadline].cb1.o[d.cb1];cPts+=o.pts;if(o.flag)flags.push("Phone message: "+o.flag);}
+  const safetyRank=order.indexOf(d.safety)+1;if(safetyRank>4)flags.push(`Ranked the safety incident (${dn(d.safety,d.num)}) at ${safetyRank} of ${n}`);
+  const accTotal=trapsAll.length||1;
+  const parts={prio,acc:25*traps.length/accTotal,judg:jMax?25*jPts/jMax:0,adapt:cMax?20*cPts/cMax:0};
+  const wId=set.find(id=>ALL[id].q.some(q=>q.cat==="w"));
+  return {...d,written:(A[wId]||{}).w||"",parts,total:parts.prio+parts.acc+parts.judg+parts.adapt,flags,traps,trapsAll,review};
+}
+
+function rawResult(){
+  return {name:S.name,finishedAt:Date.now(),secs:Math.min(elapsed(),S.mins*60),mins:S.mins,order:[...S.order],pri:{...S.pri},
+    answers:Object.fromEntries(S.done.map(id=>[id,S.answers[id]||{}])),seq:[...S.seq],cb1:S.cb1,cb1Shown:S.cb1Shown,arrived:[...S.arrived],set:[...S.set],num:{...S.num},deadline:S.deadline,safety:S.safety,
+    complete:S.queue.length>0&&S.queue.every(x=>S.done.includes(x))};
+}
+// Results code: lets a remote candidate send their answers when the page can't save them.
+function fnv(str){let h=0x811c9dc5;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(16).padStart(8,"0");}
+function encodeResult(raw){const j=JSON.stringify(raw);const b=btoa(unescape(encodeURIComponent(j)));return "TSG1-"+fnv("signal|"+j)+"-"+b;}
+function decodeResult(code){
+  const m=String(code).replace(/\s+/g,"").match(/^TSG1-([0-9a-f]{8})-([A-Za-z0-9+/=]+)$/);
+  if(!m) throw new Error("That doesn't look like a results code. It should start with TSG1-.");
+  let j;try{j=decodeURIComponent(escape(atob(m[2])));}catch(e){throw new Error("The code is incomplete. Ask the candidate to copy it again.");}
+  if(fnv("signal|"+j)!==m[1]) throw new Error("The code has been changed or cut off. Ask the candidate to copy it again.");
+  return JSON.parse(j);
+}
+async function finish(){
+  if(S.stage==="done"||S.stage==="results")return;
+  clearInterval(tick);closeModal();document.querySelectorAll(".toast").forEach(x=>x.remove());
+  // answers on unsubmitted tickets don't count
+  const raw=rawResult();S.code=encodeResult(raw);
+  S.result=scoreData(raw);S.stage="done";S.saved=null;render();
+  if(API_MODE){
+    try{const res=await fetch("/api/results",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({raw,code:S.code,name:S.result.name,total:S.result.total,finishedAt:S.result.finishedAt,flags:S.result.flags.length,traps:`${S.result.traps.length}/${S.result.trapsAll.length}`})});
+      S.saved=res.ok;}catch(e){S.saved=false;}
+    if(S.stage==="done")render();return;}
+  if(!db){S.saved=false;render();return;}
+  try{await db.collection("results").doc().set({...S.result,code:S.code});S.saved=true;S.result._saved=true;}catch(e){S.saved=false;}
+  if(S.stage==="done")render();
+}
+render();
+</script>
+
+</body>
+</html>
