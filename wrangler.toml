@@ -2,6 +2,8 @@ name = "signal-cs-assessment"
 main = "src/worker.js"
 compatibility_date = "2025-09-01"
 workers_dev = true
+# Keep variables set in the dashboard (e.g. ASSESSOR_PIN) when Workers Builds deploys.
+keep_vars = true
 
 [assets]
 directory = "./public"
