@@ -218,9 +218,24 @@ p{margin:0}
 .rtable td.good{color:var(--ok);font-weight:600} .rtable td.bad{color:var(--urgent);font-weight:600}
 .scroll{overflow-x:auto}
 
-@media (max-width:1080px){.desk{grid-template-columns:220px minmax(0,1fr)}.side{grid-column:1/-1;position:static}}
+.triage-desk{grid-template-columns:minmax(0,1fr) 340px}
+@media (max-width:1080px){.triage-desk{grid-template-columns:minmax(0,1fr)}.desk{grid-template-columns:220px minmax(0,1fr)}.side{grid-column:1/-1;position:static}}
 @media (max-width:760px){.brief{grid-template-columns:minmax(0,1fr)}.brand small{display:none}.intro,.desk{grid-template-columns:minmax(0,1fr)}.bars{grid-template-columns:repeat(2,minmax(0,1fr))}
   .trow{grid-template-columns:32px minmax(0,1fr)}.tctrl{grid-column:2}.queue{max-height:260px;overflow:auto}}
+.jumpbar{display:none}
+.scroll .rtable{min-width:860px}
+@media (max-width:760px){
+  .jumpbar{display:flex;gap:6px;position:sticky;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:4;margin-top:12px;justify-content:center}
+  .jumpbar .btn{background:var(--nav);color:var(--nav-fg);border-color:var(--nav);box-shadow:0 4px 14px rgba(0,0,0,.25);font-size:13px;padding:7px 12px}
+  .side{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 120px)}.ticket{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 120px)}
+  .wrap{padding-block:12px}
+  h1{font-size:23px}
+  .triage-head .btn{width:100%}
+  .thead,.convo,.quiz{padding-left:14px;padding-right:14px}.copilot{margin:0 14px}
+  .score-hero{gap:12px}.big{font-size:44px}
+  .proof{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .modal{max-height:85vh}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -846,7 +861,7 @@ const byId=id=>ALL[id];
 // Fill {#parent}, {#self} and {first} using this session's ticket numbers.
 function fmt(text,id,num){
   const t=ALL[id]||{};const n=num||S.num||{};
-  return String(text).replace(/\{#parent\}/g,"#"+(n[t.parent]||t.parent)).replace(/\{#self\}/g,"#"+(n[id]||id)).replace(/\{first\}/g,(t.from||"").split(" ")[0]);
+  const par=t.parent||id;return String(text).replace(/\{#parent\}/g,"#"+(n[par]||par)).replace(/\{#self\}/g,"#"+(n[id]||id)).replace(/\{first\}/g,(t.from||"").split(" ")[0]);
 }
 const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
 // Draw one ticket per theme and lay out the queue in a random arrival order (follow-ups always after the original).
@@ -1015,7 +1030,7 @@ function triageView(){
      <div class="moves"><button data-up="${i}" ${i===0?"disabled":""} aria-label="Move up">↑</button><button data-down="${i}" ${i===S.order.length-1?"disabled":""} aria-label="Move down">↓</button></div>
     </div></div>`}).join("");
   const left=S.order.filter(id=>!S.pri[id]).length;
-  return `<div class="desk" style="grid-template-columns:minmax(0,1fr) 340px">
+  return `<div class="desk triage-desk">
    <div style="min-width:0">
     <div class="triage-head"><div><h2>Your queue: ${S.order.length} open tickets</h2><p class="muted">Read each ticket, use the arrows to put the one you'd handle first at the top, then set every priority.</p></div>
      <button class="btn primary" id="toWork" ${left?"disabled":""}>${left?`Set ${left} more ${left===1?"priority":"priorities"}`:"Lock triage and start working"}</button></div>
@@ -1063,7 +1078,8 @@ function workView(){
   return `<div class="desk">
    <nav class="queue" aria-label="Ticket queue"><h3><span>My open tickets</span><span class="muted">${remaining} left</span></h3>${q}</nav>
    ${S.current?ticketView(S.current):`<section class="ticket"><div class="empty">Pick a ticket from your queue to start.</div></section>`}
-   ${sideView()}</div>`;
+   ${sideView()}</div>
+   <div class="jumpbar"><button class="btn" id="jumpTicket">Ticket</button><button class="btn" id="jumpSide">Lookup, policies &amp; FAQ</button></div>`;
 }
 
 function ticketView(id){
@@ -1326,6 +1342,8 @@ function bind(){
   drawProofs();
   on("[data-w]","input",e=>{(S.answers[+e.target.dataset.w]??={}).w=e.target.value;});
   on("#submitT","click",submitTicket);
+  on("#jumpSide","click",()=>$(".side")?.scrollIntoView({behavior:"smooth",block:"start"}));
+  on("#jumpTicket","click",()=>$(".ticket")?.scrollIntoView({behavior:"smooth",block:"start"}));
   on("#copyCode","click",async()=>{const t=$("#rcode");try{await navigator.clipboard.writeText(S.code);$("#copyMsg").textContent="Copied. Paste it into the chat now.";}catch(e){t.focus();t.select();$("#copyMsg").textContent="Press Ctrl+C (or Cmd+C) to copy the selected code.";}});
   on("#pasteCode","input",e=>{S.pasted=e.target.value;});
   on("#loadCode","click",()=>{try{const raw=decodeResult($("#pasteCode").value);S.result=scoreData(raw);S.result._fromCode=$("#pasteCode").value.replace(/\s+/g,"");S.codeErr="";S.stage="results";}catch(e){S.codeErr=e.message;}render();});
