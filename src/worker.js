@@ -41,6 +41,7 @@ async function setBenchmark(req, env, id) {
   const meta = { ...(metadata || {}), bench: !!body.on };
   if (body.parts) meta.parts = cleanParts(body.parts);
   if (body.total != null) meta.total = Math.round(Number(body.total) || 0);
+  if (body.proof !== undefined) meta.proof = body.proof == null ? null : String(body.proof).slice(0, 40);
   await env.RESULTS.put(key, value, { metadata: meta });
   return json({ ok: true });
 }
@@ -80,6 +81,7 @@ async function saveResult(req, env) {
     traps: String(body.traps || "").slice(0, 10),
     integ: body.integ == null ? null : Number(body.integ) || 0,
     parts: cleanParts(body.parts),
+    proof: body.proof == null ? null : String(body.proof).slice(0, 40),
   };
   await env.RESULTS.put("r:" + id, JSON.stringify({ raw: body.raw, code: String(body.code || "") }), { metadata: meta });
   return json({ ok: true, id });

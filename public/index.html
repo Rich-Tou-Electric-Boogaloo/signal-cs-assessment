@@ -297,7 +297,7 @@ const POOL = [
    h:[["Escalate to Jamie Hassard, Mel Liu and Rich",2],["Call Leanne to discuss",1],["Reply by email",0]]}},
 
  // ===== SECURITY / FRAUD =====
- {id:4111,slot:"security",w:95,pri:"Urgent",subj:"Updated bank details for invoices",from:"accounts@signal-groups-supplies.com",org:"",ch:"Email",brand:"The Signal Group",
+ {id:4111,slot:"security",w:55,pri:"Normal",alt:["Low","High","Urgent"],subj:"Updated bank details for invoices",from:"accounts@signal-groups-supplies.com",org:"",ch:"Email",brand:"The Signal Group",
   body:"Dear Accounts Team, please note our banking details have changed effective immediately. All outstanding and future invoice payments should be made to the new account below. Please confirm once updated in your system.\n\nBSB 062-000  Acc 1234 5678\n\nKind regards, Signal Supplies Accounts",
   q:[{cat:"j",p:"What do you do with this ticket?",o:[
     {t:"Update the supplier's bank details in the system so future invoices aren't delayed, then reply to confirm the change is done.",pts:0,flag:"Actioned a bank-details change from an email"},
@@ -309,7 +309,7 @@ const POOL = [
     {t:"The sender's domain is signal-groups-supplies.com, which isn't ours or a supplier we deal with.",pts:2,trap:true},
     {t:"It doesn't include an ABN or letterhead, which a genuine supplier would attach to any change in banking details.",pts:0}]}],
   h:[["Escalate to Finance and Rich (suspected fraud)",2],["Call the sender to verify",0],["Reply by email",0],["Update the bank details",0]]},
- {id:4112,slot:"security",w:95,pri:"Urgent",subj:"Urgent favour",from:"rich.till@thesignalgroup-au.com",org:"",ch:"Email",brand:"The Signal Group",
+ {id:4112,slot:"security",w:55,pri:"Normal",alt:["Low","High","Urgent"],subj:"Urgent favour",from:"rich.till@thesignalgroup-au.com",org:"",ch:"Email",brand:"The Signal Group",
   body:"Hi, I'm stuck in meetings all day and need a quick favour. Can you buy 10 x $200 Apple gift cards for a client thank-you and send me the codes by 11am? I'll sort the reimbursement tomorrow. Please keep this between us for now.\n\nRich",
   q:[{cat:"j",p:"What do you do with this ticket?",o:[
     {t:"Buy the gift cards on the company card, since it's from Rich and urgent, then send him the codes before 11am.",pts:0,flag:"Acted on a gift-card scam email"},
@@ -321,7 +321,7 @@ const POOL = [
     {t:"Rich doesn't usually email before 9am, and the message is shorter and less friendly than his normal emails.",pts:0},
     {t:"Nothing obvious: it uses Rich's name and signs off normally, so it's reasonable to treat it as genuine.",pts:0}]}],
   h:[["Verify with Rich on Teams and report as phishing",2],["Reply by email",0],["Buy the gift cards",0]]},
- {id:4113,slot:"security",w:95,pri:"Urgent",subj:"Action required: your shipment is on hold",from:"auspost-delivery@parcel-notify.net",org:"",ch:"Email",brand:"The Signal Group",
+ {id:4113,slot:"security",w:55,pri:"Normal",alt:["Low","High","Urgent"],subj:"Action required: your shipment is on hold",from:"auspost-delivery@parcel-notify.net",org:"",ch:"Email",brand:"The Signal Group",
   body:"Your shipment AP-7781-23 is held at customs. A fee of $3.95 must be paid within 24 hours or the parcel will be returned. Pay now: auspost-clearance.net/pay\n\nAustralia Post",
   q:[{cat:"j",p:"What do you do with this ticket?",o:[
     {t:"Pay the $3.95 fee so the shipment isn't returned, then check with Finance afterwards which order it was for.",pts:0,flag:"Paid a phishing link"},
@@ -335,7 +335,7 @@ const POOL = [
   h:[["Report to Rich as phishing",2],["Forward to the customer",0],["Pay the fee",0]]},
 
  // ===== MEDIA / LEGAL =====
- {id:4121,slot:"media",w:85,pri:"Urgent",subj:"Media enquiry: delivery delays",from:"Jess Collins",org:"Bayside Courier (newspaper)",ch:"Email",brand:"Just Coolers",
+ {id:4121,slot:"media",w:85,pri:"Urgent",alt:["High"],subj:"Media enquiry: delivery delays",from:"Jess Collins",org:"Bayside Courier (newspaper)",ch:"Email",brand:"Just Coolers",
   body:"Hi, I'm writing a story on local businesses affected by courier delays this month. A reader says their order from Just Coolers arrived late and missed their event. Could someone comment on whether you've had delays, and what you're doing about it? My deadline is 2pm today.\n\nCheers, Jess",
   q:[{cat:"j",p:"What do you do with this ticket?",o:[
     {t:"Reply briefly that, like many businesses, we've had some courier delays this month and are working closely with our couriers.",pts:0,flag:"Commented to a journalist"},
@@ -343,7 +343,7 @@ const POOL = [
     {t:"Forward it to Rich to decide how to respond, since he's the escalation point for anything unusual.",pts:1},
     {t:"Leave it for now. Media enquiries aren't customer tickets, so it can wait until today's urgent tickets are done.",pts:0}]}],
   h:[["Escalate to Mel Liu (media)",2],["Escalate to Rich",1],["Reply by email",0],["Call the journalist",0]]},
- {id:4122,slot:"media",w:85,pri:"Urgent",subj:"Letter of demand: unauthorised use of trade mark",from:"Hartley & Co Lawyers",org:"for Northern Rays Football Club",ch:"Email",brand:"Just Coolers",
+ {id:4122,slot:"media",w:85,pri:"Urgent",alt:["High"],subj:"Letter of demand: unauthorised use of trade mark",from:"Hartley & Co Lawyers",org:"for Northern Rays Football Club",ch:"Email",brand:"Just Coolers",
   body:"We act for Northern Rays Football Club. Our client has become aware that you produced stubby coolers bearing its registered logo for a third party without authorisation. We require written confirmation within 7 days that production has stopped and details of all units sold. Please direct your response to the undersigned.",
   q:[{cat:"j",p:"What do you do with this ticket?",o:[
     {t:"Reply politely that the customer supplied the artwork and approved the proof, so responsibility for the logo sits with them.",pts:0,flag:"Responded to a legal letter"},
@@ -351,7 +351,7 @@ const POOL = [
     {t:"Look up the order and send the lawyers the unit numbers they've asked for, so we meet their 7-day deadline.",pts:0,flag:"Shared order details with a third party"},
     {t:"Forward it to Rich as the escalation point, and let the lawyers know someone will respond within 7 days.",pts:1}]}],
   h:[["Escalate to Mel Liu (legal)",2],["Escalate to Rich",1],["Reply by email",0]]},
- {id:4123,slot:"media",w:85,pri:"Urgent",subj:"Radio interview request — this afternoon",from:"Tom Reid",org:"4BH Breakfast producer",ch:"Phone message",brand:"The Signal Group",
+ {id:4123,slot:"media",w:85,pri:"Urgent",alt:["High"],subj:"Radio interview request — this afternoon",from:"Tom Reid",org:"4BH Breakfast producer",ch:"Phone message",brand:"The Signal Group",
   body:"Message from reception: Tom from a Brisbane radio station called. A listener has complained on air about a badge order that arrived broken. They'd like someone from The Signal Group to come on air at 3pm today to respond. Call back on 07 3555 0199.",
   q:[{cat:"j",p:"What do you do with this ticket?",o:[
     {t:"Call Tom back and agree to go on air at 3pm yourself, since you know the customer service side best.",pts:0,flag:"Agreed to speak to the media"},
@@ -391,7 +391,7 @@ const POOL = [
     {t:"Call Mark and suggest the school prints paper name tags as a backup, in case the badges don't arrive.",pts:1}]}},
 
  // ===== WHERE'S MY ORDER =====
- {id:4141,slot:"wismo",w:70,pri:"High",subj:"SHORT SHIPPED — we're missing 100 coolers",from:"Marco Bianchi",org:"Harbour City Events",ch:"Email",brand:"Just Coolers",order:"SO-23312",
+ {id:4141,slot:"wismo",w:70,pri:"High",alt:["Urgent"],subj:"SHORT SHIPPED — we're missing 100 coolers",from:"Marco Bianchi",org:"Harbour City Events",ch:"Email",brand:"Just Coolers",order:"SO-23312",
   body:"We ordered 200 stubby coolers (SO-23312) and only one box of 100 turned up yesterday. Our festival is Saturday. Please send the missing 100 urgently, express, at your cost.\n\nMarco",
   q:[{cat:"a",trap:"Found the second carton in transit",p:"Check the order lookup. What do you tell Marco?",o:[
     {t:"Apologise for the short shipment and send the missing 100 coolers by express at our cost, so they arrive before Saturday.",pts:0},
@@ -444,7 +444,7 @@ const POOL = [
     {t:"Acknowledge his frustration, calmly mention the approved proof showed \"Mercr\", and escalate to Rich for a goodwill decision.",pts:2,trap:true}]},
    {cat:"w",p:"Write your reply to {first} (aim for under 120 words). The assessor will read this."}],
   h:[["Escalate to Rich for a goodwill decision",2],["Call Dan to discuss",1],["Reply by email",1],["Free reprint",0]]},
- {id:4152,slot:"complaint",w:65,pri:"High",subj:"Badges are the wrong colour",from:"Daniel Okafor",org:"Northside Medical Centre",ch:"Email",brand:"Name Badges Australia",order:"SO-23305",
+ {id:4152,slot:"complaint",w:65,pri:"High",alt:["Urgent"],subj:"Badges are the wrong colour",from:"Daniel Okafor",org:"Northside Medical Centre",ch:"Email",brand:"Name Badges Australia",order:"SO-23305",
   body:"Our new staff badges arrived (SO-23305) and the blue is noticeably lighter than the badges we ordered last year. Same logo, same order as before. They don't match the ones our existing staff are wearing. This isn't good enough.",
   q:[{cat:"a",trap:"Found the production note about new badge stock",p:"Check the order lookup. What do you do?",o:[
     {t:"Explain that colours can vary slightly between print runs, which is within normal tolerance, so a reprint isn't possible.",pts:0},
@@ -484,7 +484,7 @@ const POOL = [
     {t:"Forward it to Finance to investigate the duplicate charge, and leave the reply to them since it's a payment issue.",pts:1}]}],
   h:[["Reply explaining the pre-authorisation",2],["Escalate to Finance",1],["Refund the charge",0]]},
 
- {id:4164,slot:"refund",w:63,pri:"High",alt:["Normal"],subj:"Badges arrived damaged",from:"Sophie Grant",org:"Grant Real Estate",ch:"Email",brand:"Name Badges Australia",order:"SO-23308",
+ {id:4164,slot:"refund",w:63,pri:"High",alt:["Normal","Urgent"],subj:"Badges arrived damaged",from:"Sophie Grant",org:"Grant Real Estate",ch:"Email",brand:"Name Badges Australia",order:"SO-23308",
   body:"Our order came today and 6 of the 30 badges are cracked across the front. The box looked like it had been dropped. Can we get these replaced? We need them for an open home on Saturday.",
   q:[{cat:"a",trap:"Applied the damaged-item policy (photo within 14 days)",p:"Check the order lookup and the FAQ. What do you do?",o:[
     {t:"Explain kindly that change-of-mind returns aren't permitted because the badges are custom made, so we can't replace them.",pts:0},
@@ -499,7 +499,7 @@ const POOL = [
     {t:"Ask for photos and escalate to Rich. Once approved he'll get an RMA number and must return them within 14 days, at his cost.",pts:2,trap:true},
     {t:"Apologise and offer a refund for the faulty badges instead, since a replacement run could take a week or more.",pts:0,flag:"Promised a refund without approval"}]}],
   h:[["Reply explaining the RMA process, then escalate to Rich",2],["Call Ian to discuss",1],["Send replacements",0]]},
- {id:4166,slot:"refund",w:63,pri:"High",alt:["Normal"],subj:"Return for refund please",from:"Carla Benedetti",org:"Benedetti Catering",ch:"Email",brand:"Name Badges Australia",order:"SO-23263",
+ {id:4166,slot:"refund",w:63,pri:"Normal",alt:["Low","High"],subj:"Return for refund please",from:"Carla Benedetti",org:"Benedetti Catering",ch:"Email",brand:"Name Badges Australia",order:"SO-23263",
   body:"Hi, we ordered 60 badges last month but our event got cancelled, so we don't need them anymore. They're still in the box, unused. Can we send them back for a refund?",
   q:[{cat:"a",trap:"Applied the policy: no change-of-mind refunds, outside 14 days",p:"Check the order lookup and policies. What do you reply?",o:[
     {t:"Sympathise, and send her an RMA number and our return address so she can send the unused badges back for a refund.",pts:0,flag:"Promised a refund without approval"},
@@ -507,21 +507,21 @@ const POOL = [
     {t:"Explain unused badges can be returned within 30 days of delivery, and ask her to confirm they're in their original box.",pts:0}]}],
   h:[["Reply explaining the policy",2],["Escalate to Rich",1],["Issue an RMA for a refund",0]]},
  // ===== PRIVACY =====
- {id:4171,slot:"privacy",w:60,pri:"High",alt:["Normal"],subj:"Delete my details",from:"Kelvin Ross",org:"",ch:"Email",brand:"The Signal Group",
+ {id:4171,slot:"privacy",w:60,pri:"Normal",alt:["High","Low"],subj:"Delete my details",from:"Kelvin Ross",org:"",ch:"Email",brand:"The Signal Group",
   body:"Please remove me from your mailing list and delete all personal information you hold about me. I haven't ordered from you in years.",
   q:[{cat:"j",p:"What do you do with this ticket?",o:[
     {t:"Unsubscribe him from the mailing list, confirm it's done, and close the ticket since he hasn't ordered in years.",pts:1},
     {t:"Route it to Rich as a privacy request, and let Kelvin know someone will confirm once his details have been dealt with.",pts:2},
     {t:"Delete his contact record and order history in Zendesk yourself, then reply to confirm his details have been removed.",pts:0}]}],
   h:[["Escalate to Rich (privacy request)",2],["Reply by email confirming deletion",0],["Delete the contact yourself",0]]},
- {id:4172,slot:"privacy",w:60,pri:"High",alt:["Normal"],subj:"What email did my colleague use?",from:"Josh Henley",org:"",ch:"Chat",brand:"Name Badges Australia",
+ {id:4172,slot:"privacy",w:60,pri:"Normal",alt:["High","Low"],subj:"What email did my colleague use?",from:"Josh Henley",org:"",ch:"Chat",brand:"Name Badges Australia",
   body:"hi, my colleague Amy ordered badges for our team last month but she's on leave. can you tell me what email and phone number she used, and her home delivery address? want to check the order",
   q:[{cat:"j",p:"What do you do with this ticket?",o:[
     {t:"Give him Amy's email and phone number so he can check the order, since they work at the same company.",pts:0,flag:"Disclosed another person's personal details"},
     {t:"Explain you can't share another person's details, and offer to help if he has the order number or is added as a contact.",pts:2},
     {t:"Share the delivery address only, since that's company information, but keep Amy's personal email and phone private.",pts:0,flag:"Disclosed another person's personal details"}]}],
   h:[["Reply declining to share details",2],["Escalate to Rich (privacy)",1],["Share the details",0]]},
- {id:4173,slot:"privacy",w:60,pri:"High",alt:["Normal"],subj:"Request for all my personal information",from:"Elena Petrova",org:"",ch:"Email",brand:"The Signal Group",
+ {id:4173,slot:"privacy",w:60,pri:"Normal",alt:["High","Low"],subj:"Request for all my personal information",from:"Elena Petrova",org:"",ch:"Email",brand:"The Signal Group",
   body:"Under the Privacy Act, I request a copy of all personal information The Signal Group holds about me, including order history and any marketing records.",
   q:[{cat:"j",p:"What do you do with this ticket?",o:[
     {t:"Export her Zendesk record and order history and email it to her, so we meet the Privacy Act request promptly.",pts:0,flag:"Released personal information without verification"},
@@ -703,6 +703,20 @@ const POOL = [
            ["Olivia Chen","Office Manager"],["Ryan MacAllister","Leasing Consultant"],["Aisha Karim","Property Manager"],["Tom Bradley","Sales Agent"]],
    errors:{2:"Hyphen missing in Nguyen-Hart",5:"McAllister is misspelt (MacAllister)",7:"Title should be Sales Associate"}}],
   h:[["Send back to production with the corrections",2],["Send it to the customer to check",0],["Approve it for printing",0],["Escalate to Rich",0]]},
+ {id:4243,slot:"proof",w:50,pri:"High",alt:["Normal"],subj:"Proof ready to send: Gold Coast Rowing Club (SO-23328)",from:"Production team",org:"Internal",ch:"Internal note",brand:"Name Badges Australia",order:"SO-23328",
+  body:"The proof for Gold Coast Rowing Club's regatta volunteers is ready. Please check it against the customer's name list below before it goes to them for approval.\n\nCustomer's list:\n1. Siobhan O'Connor, Regatta Director\n2. Mitchell Ngata, Safety Officer\n3. Chloe Vandermeer, Volunteer Coordinator\n4. Isaac Nguyen, Timing Official\n5. Rebecca Holloway, First Aid\n6. Declan McGrath, Course Marshal\n7. Ava Lindqvist, Volunteer Coordinator\n8. Josh Pemberton, Boat Marshal",
+  q:[{cat:"p",trap:"Caught every error on the badge proof",p:"Check the proof against the list. Select every badge with an error.",org:"GOLD COAST ROWING CLUB",
+   badges:[["Siobhan OConnor","Regatta Director"],["Mitchell Ngata","Safety Officer"],["Chloe Vandermeer","Volunteer Coordinator"],["Isaac Ngyuen","Timing Official"],
+           ["Rebecca Holloway","First Aid"],["Declan McGrath","Course Marshal"],["Ava Lindqvist","Volunteer Coordinator"],["Josh Pemberton","Course Marshal"]],
+   errors:{0:"Apostrophe missing in O'Connor",3:"Nguyen is misspelt (Ngyuen)",7:"Title should be Boat Marshal"}}],
+  h:[["Send back to production with the corrections",2],["Send it to the customer to check",0],["Approve it for printing",0],["Escalate to Rich",0]]},
+ {id:4244,slot:"proof",w:50,pri:"High",alt:["Normal"],subj:"Proof ready to send: Helensvale Pharmacy (SO-23330)",from:"Production team",org:"Internal",ch:"Internal note",brand:"Name Badges Australia",order:"SO-23330",
+  body:"The proof for Helensvale Pharmacy is ready. Please check it against the customer's name list below before it goes to them for approval.\n\nCustomer's list:\n1. Ravi Patel, Pharmacist in Charge\n2. Jayden Brooks, Pharmacy Assistant\n3. Melissa Tran, Pharmacist\n4. Georgia Whitfield, Retail Manager\n5. Hamish Doyle, Pharmacy Assistant\n6. Fatima Rahimi, Pharmacist\n7. Lucy Atherton, Beauty Advisor\n8. Sam Kowalski, Dispensary Technician",
+  q:[{cat:"p",trap:"Caught every error on the badge proof",p:"Check the proof against the list. Select every badge with an error.",org:"HELENSVALE PHARMACY",
+   badges:[["Ravi Patel","Pharmacist in Charge"],["Jaden Brooks","Pharmacy Assistant"],["Melissa Tran","Pharmacist"],["Georgia Whitfield","Retail Manager"],
+           ["Hamish Doyle","Pharmacist"],["Fatima Rahimi","Pharmacist"],["Lucy Atherton","Beauty Advisor"],["Sam Kowalsky","Dispensary Technician"]],
+   errors:{1:"Jayden is misspelt (Jaden)",4:"Title should be Pharmacy Assistant (Pharmacist is a registered title)",7:"Kowalski is misspelt (Kowalsky)"}}],
+  h:[["Send back to production with the corrections",2],["Send it to the customer to check",0],["Approve it for printing",0],["Escalate to Rich",0]]},
 ];
 
 // Curveballs: one drops into the queue every 5 minutes, random order per candidate.
@@ -727,7 +741,7 @@ const EXTRA = [
    {t:"Reply firmly that his tone is unacceptable and that you'll be happy to help once he responds respectfully.",pts:0,flag:"Argued with an aggressive customer"},
    {t:"Send a short, calm acknowledgement, find his earlier emails, and escalate to Rich, mentioning his threat to visit.",pts:2},
    {t:"Close the ticket and mark him as spam, since abusive messages shouldn't be answered by the support team.",pts:0}]},
-  h:[["Escalate to Rich (difficult customer)",2],["Reply by email",1],["Call Craig to discuss",0],["Close the ticket",0]]},
+  h:[["Escalate to Rich (difficult customer)",2],["Reply by email",1],["Call Craig to discuss",1],["Close the ticket",0]]},
  {t:{id:4217,subj:"You've sent me someone else's invoice",from:"Hannah Lee",org:"Lee & Co Accounting",ch:"Email",brand:"The Signal Group",
    body:"Hi, the invoice you just emailed me isn't mine. It's for a company called Bayview Dental, with their address, contact name and order details. You might want to look into that. Hannah"},
   q:{cat:"c",p:"What do you do?",o:[
@@ -788,6 +802,8 @@ const ORDERS = [
  {so:"SO-23319",cust:"Brooks Dental (Nadia Brooks)",brand:"Name Badges Australia",items:"12 printed badges",status:"Dispatched 9 days ago. Delivered 2 days ago."},
  {so:"SO-23322",cust:"Riverbend Medical",brand:"Name Badges Australia",items:"8 printed badges",status:"Proof ready. Not yet sent to customer."},
  {so:"SO-23324",cust:"Coastline Real Estate",brand:"Name Badges Australia",items:"8 printed badges",status:"Proof ready. Not yet sent to customer."},
+ {so:"SO-23328",cust:"Gold Coast Rowing Club",brand:"Name Badges Australia",items:"8 printed volunteer badges",status:"Proof ready. Not yet sent to customer."},
+ {so:"SO-23330",cust:"Helensvale Pharmacy",brand:"Name Badges Australia",items:"8 printed badges",status:"Proof ready. Not yet sent to customer."},
  {so:"SO-23274",cust:"Wattle Grove Childcare (Sam Kelly)",brand:"Name Badges Australia",items:"25 magnetic badges",status:"Delivered 3 weeks ago."},
  {so:"SO-23279",cust:"Pacific Freight Logistics (Rob Castellano)",brand:"Name Badges Australia",items:"200 safety breakaway lanyards",status:"Delivered last month."},
  {so:"SO-23283",cust:"Harbourside Fun Run (Leanne Firth)",brand:"Name Badges Australia",items:"80 pin-back volunteer badges",status:"Delivered last week."},
@@ -942,6 +958,7 @@ function briefView(){
     <section class="panel"><h3><span class="num">01</span>What you need to do</h3>
      <ul><li><b>Step 1, triage.</b> Read every ticket in the queue. Put them in the order you'd handle them (1 = first) and give each a Zendesk priority: Urgent, High, Normal or Low.</li>
       <li><b>Step 2, work your tickets.</b> Open each ticket and choose what you'd do. One ticket also asks you to write a reply in your own words.</li>
+      <li><b>Every queue includes a proof to check</b> against the customer's name list before it goes out. Badge errors are expensive, so check every letter.</li>
       <li><b>Handle interruptions.</b> New tickets and messages will land in your queue about every five minutes. Decide where each one fits, then carry on.</li></ul></section>
     <section class="panel"><h3><span class="num">02</span>The parameters</h3>
      <ul><li>You have <b>${S.mins} minutes</b>. The timer starts when you press Start and can't be paused.</li>
@@ -1169,14 +1186,14 @@ const canStore=()=>API_MODE||!!db;
 const fmtDate=t=>new Date(t).toLocaleString("en-AU",{dateStyle:"medium",timeStyle:"short"});
 function historyBlock(title){
   const q=(S.histQ||"").trim().toLowerCase();
-  const rows=HIST.map(h=>`<tr data-name="${esc((h.name||"").toLowerCase())}" ${q&&!(h.name||"").toLowerCase().includes(q)?"hidden":""}><td>${esc(h.name||"(no name)")}${h.bench?` <span class="chip bench">Team benchmark</span>`:""}</td><td>${fmtDate(h.finishedAt)}</td><td class="mono">${Math.round(h.total)}</td><td class="mono">${h.flagsN}</td><td class="mono">${esc(h.trapsTxt)}</td><td class="mono">${h.integN==null?"—":h.integN}</td><td class="rowbtns"><button class="btn" data-view="${esc(h._id)}">Open</button>${API_MODE?`<button class="btn ghost" data-bench="${esc(h._id)}">${h.bench?"Remove from benchmark":"Add to benchmark"}</button>`:""}</td></tr>`).join("");
+  const rows=HIST.map(h=>`<tr data-name="${esc((h.name||"").toLowerCase())}" ${q&&!(h.name||"").toLowerCase().includes(q)?"hidden":""}><td>${esc(h.name||"(no name)")}${h.bench?` <span class="chip bench">Team benchmark</span>`:""}</td><td>${fmtDate(h.finishedAt)}</td><td class="mono">${Math.round(h.total)}</td><td class="mono">${h.flagsN}</td><td class="mono">${esc(h.trapsTxt)}</td><td class="mono">${esc(h.proof||"—")}</td><td class="mono">${h.integN==null?"—":h.integN}</td><td class="rowbtns"><button class="btn" data-view="${esc(h._id)}">Open</button>${API_MODE?`<button class="btn ghost" data-bench="${esc(h._id)}">${h.bench?"Remove from benchmark":"Add to benchmark"}</button>`:""}</td></tr>`).join("");
   const shown=HIST.filter(h=>!q||(h.name||"").toLowerCase().includes(q)).length;
   return `<div class="triage-head"><div><h2>${title}</h2><p class="muted" id="histCount">${HIST.length?`${shown} of ${HIST.length} candidates, newest first`:""}</p></div>
-    ${API_MODE?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="histRefresh">Refresh</button><button class="btn ghost" id="exportCsv">Download CSV</button><button class="btn ghost" id="exportJson">Download full data</button></div>`:""}</div>
+    ${API_MODE?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="histRefresh">Refresh</button><button class="btn ghost" id="rescoreAll" title="Recalculate saved scores after the answer key changes">Rescore all</button><button class="btn ghost" id="exportCsv">Download CSV</button><button class="btn ghost" id="exportJson">Download full data</button></div>`:""}</div>
    ${benchSummaryHtml()}
    ${S.histMsg?`<p class="muted" role="status">${esc(S.histMsg)}</p>`:""}
    <div class="field" style="max-width:360px"><label for="histq">Search by candidate name</label><input id="histq" type="search" autocomplete="off" value="${esc(S.histQ||"")}" placeholder="e.g. Alex"></div>
-   ${HIST.length?`<div class="scroll"><table class="rtable"><thead><tr><th>Candidate</th><th>Finished</th><th>Score</th><th>Red flags</th><th>Accuracy checks</th><th>Outside-help signs</th><th style="min-width:200px"></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="muted">${esc(histNote)}</p>`}`;
+   ${HIST.length?`<div class="scroll"><table class="rtable"><thead><tr><th>Candidate</th><th>Finished</th><th>Score</th><th>Red flags</th><th>Accuracy checks</th><th>Proof check</th><th>Outside-help signs</th><th style="min-width:200px"></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="muted">${esc(histNote)}</p>`}`;
 }
 // Team benchmark: average of results marked as benchmark (your current agents).
 function benchStats(){
@@ -1194,10 +1211,19 @@ async function toggleBench(id){
   const h=HIST.find(x=>x._id===id);if(!h)return;S.histMsg="Updating…";render();
   try{let parts=h.parts,total=h.total;
     if(!h.bench&&!parts){const d=await apiFetch("/api/results/"+encodeURIComponent(id));const r=scoreData(d.raw);parts=r.parts;total=r.total;}
-    await apiFetch("/api/results/"+encodeURIComponent(id)+"/benchmark",{method:"POST",body:JSON.stringify({on:!h.bench,parts,total})});
+    await apiFetch("/api/results/"+encodeURIComponent(id)+"/benchmark",{method:"POST",body:JSON.stringify({on:!h.bench,parts,total,proof:h.proof})});
     h.bench=!h.bench;h.parts=parts;S.histMsg=h.bench?`${h.name} added to the team benchmark.`:`${h.name} removed from the team benchmark.`;}
   catch(e){S.histMsg="That didn't save. Try again.";}
   render();
+}
+// Recalculate every saved result with the current answer key, keeping benchmark marks.
+async function rescoreAll(){
+  S.histMsg="Rescoring…";render();
+  try{const d=await apiFetch("/api/export");let n=0;
+    for(const x of d.results){let r;try{r=scoreData(x.raw);}catch(e){continue;}
+      await apiFetch("/api/results/"+encodeURIComponent(x.id)+"/benchmark",{method:"POST",body:JSON.stringify({on:!!(x.meta&&x.meta.bench),parts:r.parts,total:r.total,proof:r.proof})});n++;}
+    S.histMsg=`Rescored ${n} response${n===1?"":"s"} with the current answer key.`;await loadApiHistory();}
+  catch(e){S.histMsg="Rescoring didn't finish. Try again.";render();}
 }
 function saveFile(name,text,type){
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;document.body.appendChild(a);a.click();
@@ -1208,10 +1234,10 @@ async function exportData(kind){
   try{const d=await apiFetch("/api/export");const day=new Date().toISOString().slice(0,10);
     if(kind==="json"){saveFile(`signal-cs-assessment-${day}.json`,JSON.stringify(d,null,1),"application/json");}
     else{const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
-      const rows=[["Candidate","Finished","Team benchmark","Score","Prioritisation /30","Accuracy /25","Judgement /25","Adaptability /20","Red flags","Accuracy checks","Outside-help signs","Red flag details","Outside-help details"]];
+      const rows=[["Candidate","Finished","Team benchmark","Score","Prioritisation /30","Accuracy /25","Judgement /25","Adaptability /20","Red flags","Accuracy checks","Proof check","Outside-help signs","Red flag details","Outside-help details"]];
       for(const x of d.results){let r;try{r=scoreData(x.raw);}catch(e){continue;}
         rows.push([r.name,new Date(r.finishedAt).toLocaleString("en-AU"),x.meta&&x.meta.bench?"Yes":"",Math.round(r.total),Math.round(r.parts.prio),Math.round(r.parts.acc),Math.round(r.parts.judg),Math.round(r.parts.adapt),
-          r.flags.length,`${r.traps.length}/${r.trapsAll.length}`,r.signals?r.signals.list.length:"",r.flags.join("; "),r.signals?r.signals.list.join("; "):""]);}
+          r.flags.length,`${r.traps.length}/${r.trapsAll.length}`,r.proof||"Not in this version",r.signals?r.signals.list.length:"",r.flags.join("; "),r.signals?r.signals.list.join("; "):""]);}
       saveFile(`signal-cs-assessment-${day}.csv`,rows.map(r=>r.map(q).join(",")).join("\n"),"text/csv");}
     S.histMsg=`Downloaded ${d.count} response${d.count===1?"":"s"}.`;}
   catch(e){S.histMsg="The download didn't work. Try again.";}
@@ -1221,7 +1247,7 @@ function historyView(){
   return `<section class="panel">${historyBlock("Completed responses")}<button class="btn" id="backStart" style="align-self:flex-start">Back to assessor area</button></section>`;
 }
 
-const summarise=(id,r)=>({_id:id,name:r.name,finishedAt:r.finishedAt,total:r.total,flagsN:(r.flags||[]).length,integN:r.signals?r.signals.list.length:null,trapsTxt:`${(r.traps||[]).length}/${(r.trapsAll||[]).length||7}`,_full:r});
+const summarise=(id,r)=>({_id:id,name:r.name,finishedAt:r.finishedAt,total:r.total,flagsN:(r.flags||[]).length,proof:r.proof||null,integN:r.signals?r.signals.list.length:null,trapsTxt:`${(r.traps||[]).length}/${(r.trapsAll||[]).length||7}`,_full:r});
 async function apiFetch(path,opts={}){
   const res=await fetch(path,{...opts,headers:{"content-type":"application/json","x-assessor-pin":S.pinPlain||"",...(opts.headers||{})}});
   if(!res.ok){let code="";try{code=(await res.json()).error||"";}catch(e){}throw new Error(code||("http "+res.status));}
@@ -1229,7 +1255,7 @@ async function apiFetch(path,opts={}){
 }
 async function loadApiHistory(){
   histNote="Loading saved results…";
-  try{const d=await apiFetch("/api/results");HIST=d.results.map(x=>({_id:x.id,name:x.name,finishedAt:x.finishedAt,total:x.total,flagsN:x.flags,trapsTxt:x.traps,integN:x.integ,bench:!!x.bench,parts:x.parts||null}));
+  try{const d=await apiFetch("/api/results");HIST=d.results.map(x=>({_id:x.id,name:x.name,finishedAt:x.finishedAt,total:x.total,flagsN:x.flags,trapsTxt:x.traps,integN:x.integ,bench:!!x.bench,parts:x.parts||null,proof:x.proof||null}));
     histNote="No candidates have finished yet. Responses appear here as soon as someone completes the exercise.";}
   catch(e){histNote=e.message==="pin_not_set"?"The Worker has no ASSESSOR_PIN secret yet. Add it under the Worker's Settings → Variables and Secrets, then choose Refresh."
       :e.message==="forbidden"?"The Worker's ASSESSOR_PIN secret doesn't match the PIN you unlocked with. Check the secret's value is 731946, then choose Refresh."
@@ -1280,6 +1306,7 @@ function bind(){
   on("#histRefresh","click",loadApiHistory);
   on("[data-bench]","click",e=>toggleBench(e.currentTarget.dataset.bench));
   on("#exportCsv","click",()=>exportData("csv"));
+  on("#rescoreAll","click",rescoreAll);
   on("#exportJson","click",()=>exportData("json"));
   on("#histq","input",e=>{S.histQ=e.target.value;const q=S.histQ.trim().toLowerCase();let n=0;
     document.querySelectorAll("tr[data-name]").forEach(r=>{const show=!q||r.dataset.name.includes(q);r.hidden=!show;if(show)n++;});
@@ -1303,7 +1330,7 @@ function bind(){
   on("#pasteCode","input",e=>{S.pasted=e.target.value;});
   on("#loadCode","click",()=>{try{const raw=decodeResult($("#pasteCode").value);S.result=scoreData(raw);S.result._fromCode=$("#pasteCode").value.replace(/\s+/g,"");S.codeErr="";S.stage="results";}catch(e){S.codeErr=e.message;}render();});
   on("#saveCode","click",async e=>{e.currentTarget.disabled=true;try{const {_fromCode,...r}=S.result;
-    if(API_MODE){const raw=decodeResult(_fromCode);const res=await fetch("/api/results",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({raw,code:_fromCode,name:r.name,total:r.total,finishedAt:r.finishedAt,flags:r.flags.length,traps:`${r.traps.length}/${r.trapsAll.length}`,integ:r.signals?r.signals.list.length:null,parts:r.parts})});if(!res.ok)throw new Error();}
+    if(API_MODE){const raw=decodeResult(_fromCode);const res=await fetch("/api/results",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({raw,code:_fromCode,name:r.name,total:r.total,finishedAt:r.finishedAt,flags:r.flags.length,traps:`${r.traps.length}/${r.trapsAll.length}`,integ:r.signals?r.signals.list.length:null,parts:r.parts,proof:r.proof})});if(!res.ok)throw new Error();}
     else await db.collection("results").doc().set({...r,code:_fromCode});
     S.result._saved=true;}catch(err){S.codeErr="Couldn't save this result. Try again.";}render();});
   on("#showRes","click",()=>{S.unlocked=false;S.pinErr="";S.stage="results";render();});
@@ -1437,8 +1464,11 @@ function scoreData(d){
   const accTotal=trapsAll.length||1;
   const parts={prio,acc:25*traps.length/accTotal,judg:jMax?25*jPts/jMax:0,adapt:cMax?20*cPts/cMax:0};
   const written=set.filter(id=>ALL[id].q.some(q=>q.cat==="w")).map(id=>{const t=ALL[id],a=A[id];return {id,text:a?(a.w!=null?a.w:(t.draft||"")):"",reached:!!a,draft:!!t.draft,unchanged:!!(a&&t.draft&&draftUnchanged(t,a))};});
+  const pid=set.find(id=>ALL[id].q.some(q=>q.cat==="p"));let proof=null;
+  if(pid){const pq=ALL[pid].q.find(q=>q.cat==="p"),pa=A[pid];const n=Object.keys(pq.errors).length;
+    if(!pa)proof="Not reached";else{const pr=proofResult(pq,pa[ALL[pid].q.indexOf(pq)]);proof=`${pr.found.length}/${n} found${pr.wrong.length?`, ${pr.wrong.length} wrongly flagged`:""}`;}}
   const signals=integritySignals(d);
-  return {...d,signals,writtenAll:written,written:(written.find(w=>!w.draft)||{}).text||"",parts,total:parts.prio+parts.acc+parts.judg+parts.adapt,flags,traps,trapsAll,review};
+  return {...d,signals,proof,writtenAll:written,written:(written.find(w=>!w.draft)||{}).text||"",parts,total:parts.prio+parts.acc+parts.judg+parts.adapt,flags,traps,trapsAll,review};
 }
 
 function rawResult(){
@@ -1464,7 +1494,7 @@ async function finish(){
   const raw=rawResult();S.code=encodeResult(raw);
   S.result=scoreData(raw);S.stage="done";S.saved=null;render();
   if(API_MODE){
-    try{const res=await fetch("/api/results",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({raw,code:S.code,name:S.result.name,total:S.result.total,finishedAt:S.result.finishedAt,flags:S.result.flags.length,traps:`${S.result.traps.length}/${S.result.trapsAll.length}`,integ:S.result.signals?S.result.signals.list.length:null,parts:S.result.parts})});
+    try{const res=await fetch("/api/results",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({raw,code:S.code,name:S.result.name,total:S.result.total,finishedAt:S.result.finishedAt,flags:S.result.flags.length,traps:`${S.result.traps.length}/${S.result.trapsAll.length}`,integ:S.result.signals?S.result.signals.list.length:null,parts:S.result.parts,proof:S.result.proof})});
       S.saved=res.ok;}catch(e){S.saved=false;}
     if(S.stage==="done")render();return;}
   if(!db){S.saved=false;render();return;}
