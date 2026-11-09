@@ -23,6 +23,31 @@ function health(env) {
   });
 }
 
+function cleanFlagTypes(f) {
+  if (!Array.isArray(f)) return null;
+  return f.slice(0, 20).map(x => String(x).slice(0, 120));
+}
+
+// Interview progression bands, set by the assessor (assessor only).
+async function getSettings(req, env) {
+  if (!configuredPin(env)) return json({ error: "pin_not_set" }, 403);
+  if (!isAssessor(req, env)) return json({ error: "forbidden" }, 403);
+  const v = await env.RESULTS.get("settings:bands");
+  return json({ bands: v ? JSON.parse(v) : null });
+}
+async function saveSettings(req, env) {
+  if (!configuredPin(env)) return json({ error: "pin_not_set" }, 403);
+  if (!isAssessor(req, env)) return json({ error: "forbidden" }, 403);
+  let body;
+  try { body = await req.json(); } catch { return json({ error: "bad_json" }, 400); }
+  const b = body && body.bands;
+  const iv = Math.round(Number(b && b.interview)), rv = Math.round(Number(b && b.review));
+  if (!(iv >= 0 && iv <= 100 && rv >= 0 && rv <= 100 && rv <= iv)) return json({ error: "bad_bands" }, 400);
+  const disq = Array.isArray(b.disq) ? b.disq.slice(0, 80).map(x => String(x).slice(0, 120)) : [];
+  await env.RESULTS.put("settings:bands", JSON.stringify({ interview: iv, review: rv, disq }));
+  return json({ ok: true });
+}
+
 function cleanParts(p) {
   if (!p || typeof p !== "object") return null;
   const n = k => Math.round((Number(p[k]) || 0) * 10) / 10;
@@ -42,6 +67,7 @@ async function setBenchmark(req, env, id) {
   if (body.parts) meta.parts = cleanParts(body.parts);
   if (body.total != null) meta.total = Math.round(Number(body.total) || 0);
   if (body.proof !== undefined) meta.proof = body.proof == null ? null : String(body.proof).slice(0, 40);
+  if (body.flagTypes !== undefined) meta.flagTypes = cleanFlagTypes(body.flagTypes);
   await env.RESULTS.put(key, value, { metadata: meta });
   return json({ ok: true });
 }
@@ -82,6 +108,7 @@ async function saveResult(req, env) {
     integ: body.integ == null ? null : Number(body.integ) || 0,
     parts: cleanParts(body.parts),
     proof: body.proof == null ? null : String(body.proof).slice(0, 40),
+    flagTypes: cleanFlagTypes(body.flagTypes),
   };
   await env.RESULTS.put("r:" + id, JSON.stringify({ raw: body.raw, code: String(body.code || "") }), { metadata: meta });
   return json({ ok: true, id });
@@ -116,6 +143,11 @@ export default {
     const url = new URL(req.url);
     if (url.pathname === "/api/health") return health(env);
     if (url.pathname === "/api/results" && req.method === "POST") return saveResult(req, env);
+    if (url.pathname === "/api/settings") {
+      if (!env.RESULTS) return json({ error: "storage_not_set_up" }, 500);
+      if (req.method === "GET") return getSettings(req, env);
+      if (req.method === "POST") return saveSettings(req, env);
+    }
     if (url.pathname === "/api/export" && req.method === "GET") { if (!env.RESULTS) return json({ error: "storage_not_set_up" }, 500); return exportAll(req, env); }
     const bm = url.pathname.match(/^\/api\/results\/([^/]+)\/benchmark$/);
     if (bm && req.method === "POST") { if (!env.RESULTS) return json({ error: "storage_not_set_up" }, 500); return setBenchmark(req, env, decodeURIComponent(bm[1])); }

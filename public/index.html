@@ -110,6 +110,24 @@ p{margin:0}
 .bench-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .bench-mark{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--hot);border-radius:1px}
 .rowbtns{display:flex;gap:6px;flex-wrap:wrap}
+.chip.outcome{font-weight:700;border-color:transparent}
+.chip.outcome.yes{background:var(--ok-soft);color:var(--ok)}
+.chip.outcome.rev{background:var(--high-soft);color:var(--high)}
+.chip.outcome.no{background:var(--urgent-soft);color:var(--urgent)}
+.outcome-line{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;max-width:60ch}
+.bands{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.band{border:1px solid var(--line);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:6px;background:var(--surface-2)}
+.band b{font-size:22px}
+.band.yes{border-top:3px solid var(--ok)}.band.rev{border-top:3px solid var(--high)}.band.no{border-top:3px solid var(--urgent)}
+.bandedit summary{cursor:pointer;font-weight:600;color:var(--accent-ink)}
+.bandedit[open]{display:flex;flex-direction:column;gap:12px}
+.bandfields{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.bandfields .field input,.bandfields .field select{width:auto;min-width:140px}
+.disq{border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 16px;margin:0}
+.disq legend{font-weight:600;padding:0 4px}
+.disq label{display:flex;gap:8px;align-items:flex-start;font-size:14px}
+.disq input{margin-top:3px;accent-color:var(--urgent)}
+@media (max-width:760px){.bands{grid-template-columns:minmax(0,1fr)}.disq{grid-template-columns:minmax(0,1fr)}}
 .codebox{width:100%;font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:var(--r);padding:10px;background:var(--surface-2);word-break:break-all;resize:vertical}
 .err{color:var(--urgent);font-weight:600;font-size:14px}
 
@@ -937,7 +955,7 @@ function setupView(){
     ?`<li>Add the candidate's email to Cloudflare Access, then send them this page's link. For 35 minutes, add <span class="mono">#t35</span> to the end.</li>`
     :`<li>Share this page from its Share menu with a link anyone can open, then send the candidate the link. For 35 minutes, add <span class="mono">#t35</span> to the end of the link.</li>`;
   return `<div class="intro">
-   ${canStore()?`<section class="panel wide">${historyBlock("Completed responses")}</section>`:""}
+   ${canStore()?`<section class="panel wide">${historyBlock("Completed responses")}</section>${bandsPanel()}`:""}
    <section class="panel">
     <span class="eyebrow">Assessor setup</span>
     <h2>Set up the next candidate</h2>
@@ -1129,7 +1147,7 @@ function resultsView(r){
   const best=list=>list.reduce((b,x)=>(x.pts??x[1])>(b.pts??b[1])?x:b);
   const cbDef=ALL[r.deadline].cb1;const cb1=r.cb1!=null?cbDef.o[r.cb1]:null;
   return `<div style="display:flex;flex-direction:column;gap:20px">
-   <div class="score-hero"><div><span class="label">${esc(r.name)} · ${new Date(r.finishedAt).toLocaleString("en-AU",{dateStyle:"medium",timeStyle:"short"})}</span><div class="big">${Math.round(r.total)}<span class="muted" style="font-size:24px"> / 100</span></div>${B?`<div class="muted">Team benchmark: <b class="mono">${Math.round(B.total)}</b> average across ${B.n} agent${B.n>1?"s":""}</div>`:""}</div>
+   <div class="score-hero"><div><span class="label">${esc(r.name)} · ${new Date(r.finishedAt).toLocaleString("en-AU",{dateStyle:"medium",timeStyle:"short"})}</span><div class="big">${Math.round(r.total)}<span class="muted" style="font-size:24px"> / 100</span></div>${(()=>{const o=outcome(r.total,r.flagTypes||(r.flags||[]).map(flagType));return `<div class="outcome-line">${outcomeChip(o)} <span class="muted">${esc(o.reason)}</span></div>`;})()}${B?`<div class="muted">Team benchmark: <b class="mono">${Math.round(B.total)}</b> average across ${B.n} agent${B.n>1?"s":""}</div>`:""}</div>
     <div class="muted" style="max-width:52ch">Auto-scored from their choices. Score the written reply yourself using the rubric's "Written responses" criterion. ${r.complete?"Finished all tickets":"Ran out of time or finished early"} in ${Math.floor(r.secs/60)}m ${String(Math.round(r.secs%60)).padStart(2,"0")}s. Each candidate gets a different mix of tickets, one from every theme.</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="backStart">Back to assessor area</button>${r._fromCode&&canStore()&&!r._saved?`<button class="btn primary" id="saveCode">Save to results list</button>`:""}${r._saved&&r._fromCode?`<span class="chip done">Saved</span>`:""}${canStore()?`<button class="btn" id="hist">All saved results</button>`:""}</div></div>
    <div class="bars">${bar("Prioritisation",r.parts.prio,30,B&&B.prio)}${bar("Accuracy",r.parts.acc,25,B&&B.acc)}${bar("Judgement",r.parts.judg,25,B&&B.judg)}${bar("Adaptability",r.parts.adapt,20,B&&B.adapt)}</div>
@@ -1202,14 +1220,91 @@ const canStore=()=>API_MODE||!!db;
 const fmtDate=t=>new Date(t).toLocaleString("en-AU",{dateStyle:"medium",timeStyle:"short"});
 function historyBlock(title){
   const q=(S.histQ||"").trim().toLowerCase();
-  const rows=HIST.map(h=>`<tr data-name="${esc((h.name||"").toLowerCase())}" ${q&&!(h.name||"").toLowerCase().includes(q)?"hidden":""}><td>${esc(h.name||"(no name)")}${h.bench?` <span class="chip bench">Team benchmark</span>`:""}</td><td>${fmtDate(h.finishedAt)}</td><td class="mono">${Math.round(h.total)}</td><td class="mono">${h.flagsN}</td><td class="mono">${esc(h.trapsTxt)}</td><td class="mono">${esc(h.proof||"—")}</td><td class="mono">${h.integN==null?"—":h.integN}</td><td class="rowbtns"><button class="btn" data-view="${esc(h._id)}">Open</button>${API_MODE?`<button class="btn ghost" data-bench="${esc(h._id)}">${h.bench?"Remove from benchmark":"Add to benchmark"}</button>`:""}</td></tr>`).join("");
-  const shown=HIST.filter(h=>!q||(h.name||"").toLowerCase().includes(q)).length;
+  const of=S.histOutcome||"all";
+  const keep=h=>(!q||(h.name||"").toLowerCase().includes(q))&&(of==="all"||(!h.bench&&outcome(h.total,h.flagTypes).key===of));
+  const rows=HIST.map(h=>`<tr data-name="${esc((h.name||"").toLowerCase())}" data-out="${h.bench?"bench":outcome(h.total,h.flagTypes).key}" ${keep(h)?"":"hidden"}><td>${esc(h.name||"(no name)")}${h.bench?` <span class="chip bench">Team benchmark</span>`:""}</td><td>${h.bench?`<span class="muted">—</span>`:outcomeChip(outcome(h.total,h.flagTypes))}${!h.bench&&!h.flagTypes?`<div class="muted" style="font-size:12px">Rescore to check red flags</div>`:""}</td><td>${fmtDate(h.finishedAt)}</td><td class="mono">${Math.round(h.total)}</td><td class="mono">${h.flagsN}</td><td class="mono">${esc(h.trapsTxt)}</td><td class="mono">${esc(h.proof||"—")}</td><td class="mono">${h.integN==null?"—":h.integN}</td><td class="rowbtns"><button class="btn" data-view="${esc(h._id)}">Open</button>${API_MODE?`<button class="btn ghost" data-bench="${esc(h._id)}">${h.bench?"Remove from benchmark":"Add to benchmark"}</button>`:""}</td></tr>`).join("");
+  const shown=HIST.filter(keep).length;
   return `<div class="triage-head"><div><h2>${title}</h2><p class="muted" id="histCount">${HIST.length?`${shown} of ${HIST.length} candidates, newest first`:""}</p></div>
     ${API_MODE?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="histRefresh">Refresh</button><button class="btn ghost" id="rescoreAll" title="Recalculate saved scores after the answer key changes">Rescore all</button><button class="btn ghost" id="exportCsv">Download CSV</button><button class="btn ghost" id="exportJson">Download full data</button></div>`:""}</div>
    ${benchSummaryHtml()}
    ${S.histMsg?`<p class="muted" role="status">${esc(S.histMsg)}</p>`:""}
-   <div class="field" style="max-width:360px"><label for="histq">Search by candidate name</label><input id="histq" type="search" autocomplete="off" value="${esc(S.histQ||"")}" placeholder="e.g. Alex"></div>
-   ${HIST.length?`<div class="scroll"><table class="rtable"><thead><tr><th>Candidate</th><th>Finished</th><th>Score</th><th>Red flags</th><th>Accuracy checks</th><th>Proof check</th><th>Outside-help signs</th><th style="min-width:200px"></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="muted">${esc(histNote)}</p>`}`;
+   <div class="bandfields"><div class="field" style="max-width:360px"><label for="histq">Search by candidate name</label><input id="histq" type="search" autocomplete="off" value="${esc(S.histQ||"")}" placeholder="e.g. Alex"></div>
+    <div class="field"><label for="histOut">Show</label><select id="histOut">${[["all","Everyone"],["yes","Interview"],["rev","Review"],["no","Not progressing"]].map(([k,l])=>`<option value="${k}" ${of===k?"selected":""}>${l}</option>`).join("")}</select></div></div>
+   ${HIST.length?`<div class="scroll"><table class="rtable"><thead><tr><th>Candidate</th><th>Outcome</th><th>Finished</th><th>Score</th><th>Red flags</th><th>Accuracy checks</th><th>Proof check</th><th>Outside-help signs</th><th style="min-width:200px"></th></tr></thead><tbody>${rows}</tbody></table></div>`:`<p class="muted">${esc(histNote)}</p>`}`;
+}
+// ---------- interview progression ----------
+// Cut-offs and disqualifying red flags are set once by the assessor and stored with the results.
+const DEFAULT_BANDS={interview:75,review:60,disq:[
+  "Told a customer a product involved in a safety incident was safe","Gave technical advice on a safety incident","Admitted liability without escalating",
+  "Actioned a bank-details change from an email","Acted on a gift-card scam email","Paid a phishing link",
+  "Disclosed another person's personal details","Released personal information without verification","Asked a customer for their password",
+  "Sent a password by email","Accepted card details by email","Commented to a journalist","Commented to the media","Agreed to speak to the media","Responded to a legal letter"]};
+let BANDS=JSON.parse(JSON.stringify(DEFAULT_BANDS)),bandsLoaded=false,bandsMsg="";
+function flagType(f){
+  let t=String(f).replace(/^#\d+:\s*/,"").replace(/^Phone message:\s*/,"");
+  if(/^Missed \d+ errors? on the badge proof/.test(t))return "Missed errors on the badge proof";
+  if(/^Ranked the safety incident/.test(t))return "Ranked the safety incident below 4th";
+  return t;
+}
+// Every red flag the test can raise, for the settings checklist.
+function allFlagTypes(){
+  const set=new Set(["Left the AI draft's mistake in the reply","Missed errors on the badge proof","Ranked the safety incident below 4th"]);
+  Object.values(ALL).forEach(t=>{(t.q||[]).forEach(q=>(q.o||[]).forEach(o=>o.flag&&set.add(o.flag)));(t.cb1?t.cb1.o:[]).forEach(o=>o.flag&&set.add(o.flag));});
+  return [...set].sort((a,b)=>a.localeCompare(b));
+}
+function outcome(total,flagTypes){
+  const dq=(flagTypes||[]).filter(f=>BANDS.disq.includes(f));
+  if(dq.length)return {key:"no",label:"Not progressing",reason:`Disqualifying red flag: ${dq.join("; ")}`};
+  if(total>=BANDS.interview)return {key:"yes",label:"Interview",reason:`Score ${Math.round(total)} is at or above ${BANDS.interview}`};
+  if(total>=BANDS.review)return {key:"rev",label:"Review",reason:`Score ${Math.round(total)} is between ${BANDS.review} and ${BANDS.interview-1}: read the written replies and any "Other" answers before deciding`};
+  return {key:"no",label:"Not progressing",reason:`Score ${Math.round(total)} is below ${BANDS.review}`};
+}
+const outcomeChip=o=>`<span class="chip outcome ${o.key}" title="${esc(o.reason)}">${o.label}</span>`;
+async function loadBands(){
+  if(bandsLoaded)return;bandsLoaded=true;
+  try{
+    if(API_MODE){const d=await apiFetch("/api/settings");if(d&&d.bands)BANDS=d.bands;}
+    else if(db){const snap=await db.doc("settings/bands").get();const v=snap&&snap.exists?(snap.data?snap.data():snap.data):null;if(v&&v.interview!=null)BANDS=v;}
+  }catch(e){bandsLoaded=false;}
+  rerenderHist();
+}
+async function saveBands(){
+  const iv=+$("#bandInterview").value,rv=+$("#bandReview").value;
+  if(!(iv>=0&&iv<=100&&rv>=0&&rv<=100)){bandsMsg="Cut-offs must be between 0 and 100.";render();return;}
+  if(rv>iv){bandsMsg="The review cut-off must be lower than the interview cut-off.";render();return;}
+  const disq=[...document.querySelectorAll("input[data-disq]")].filter(x=>x.checked).map(x=>x.value);
+  const next={interview:Math.round(iv),review:Math.round(rv),disq};bandsMsg="Saving…";render();
+  try{
+    if(API_MODE)await apiFetch("/api/settings",{method:"POST",body:JSON.stringify({bands:next})});
+    else if(db)await db.doc("settings/bands").set(next);
+    BANDS=next;bandsMsg="Saved. Every candidate's outcome has been updated.";
+  }catch(e){bandsMsg="Those settings didn't save. Try again.";}
+  render();
+}
+function bandsPanel(){
+  const types=allFlagTypes();
+  const counts={yes:0,rev:0,no:0};HIST.forEach(h=>{if(!h.bench)counts[outcome(h.total,h.flagTypes).key]++;});
+  return `<section class="panel wide">
+   <div class="triage-head"><div><span class="eyebrow">Interview progression</span><h2>Scoring bands</h2>
+    <p class="muted" style="max-width:70ch">Decide these before you review anyone, then apply them the same way to every candidate. Benchmark agents aren't counted.</p></div></div>
+   <div class="bands">
+    <div class="band yes"><span class="chip outcome yes">Interview</span><b class="mono">${BANDS.interview}+</b><span>and no disqualifying red flag</span><span class="muted">${counts.yes} candidate${counts.yes===1?"":"s"}</span></div>
+    <div class="band rev"><span class="chip outcome rev">Review</span><b class="mono">${BANDS.review}–${BANDS.interview-1}</b><span>Read the written replies and "Other" answers, then decide</span><span class="muted">${counts.rev} candidate${counts.rev===1?"":"s"}</span></div>
+    <div class="band no"><span class="chip outcome no">Not progressing</span><b class="mono">Below ${BANDS.review}</b><span>or any disqualifying red flag, whatever the score</span><span class="muted">${counts.no} candidate${counts.no===1?"":"s"}</span></div>
+   </div>
+   <details class="bandedit"><summary>Change the cut-offs and disqualifying red flags</summary>
+    <div class="bandfields">
+     <div class="field"><label for="bandInterview">Interview at or above</label><input id="bandInterview" type="number" min="0" max="100" value="${BANDS.interview}"></div>
+     <div class="field"><label for="bandReview">Review at or above</label><input id="bandReview" type="number" min="0" max="100" value="${BANDS.review}"></div>
+    </div>
+    <fieldset class="disq"><legend>Red flags that mean Not progressing, whatever the score</legend>
+     ${types.map((t,i)=>`<label><input type="checkbox" data-disq value="${esc(t)}" ${BANDS.disq.includes(t)?"checked":""}> ${esc(t)}</label>`).join("")}
+    </fieldset>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary" id="saveBands">Save scoring bands</button><button class="btn ghost" id="resetBands">Use the suggested defaults</button></div>
+   </details>
+   ${bandsMsg?`<p class="muted" role="status">${esc(bandsMsg)}</p>`:""}
+   <p class="muted">Outcomes are a guide, not the decision. Small score differences aren't meaningful because each candidate gets a different mix of tickets, and outside-help signs on their own shouldn't rule anyone out.</p>
+  </section>`;
 }
 // Team benchmark: average of results marked as benchmark (your current agents).
 function benchStats(){
@@ -1227,7 +1322,7 @@ async function toggleBench(id){
   const h=HIST.find(x=>x._id===id);if(!h)return;S.histMsg="Updating…";render();
   try{let parts=h.parts,total=h.total;
     if(!h.bench&&!parts){const d=await apiFetch("/api/results/"+encodeURIComponent(id));const r=scoreData(d.raw);parts=r.parts;total=r.total;}
-    await apiFetch("/api/results/"+encodeURIComponent(id)+"/benchmark",{method:"POST",body:JSON.stringify({on:!h.bench,parts,total,proof:h.proof})});
+    await apiFetch("/api/results/"+encodeURIComponent(id)+"/benchmark",{method:"POST",body:JSON.stringify({on:!h.bench,parts,total,proof:h.proof,flagTypes:h.flagTypes})});
     h.bench=!h.bench;h.parts=parts;S.histMsg=h.bench?`${h.name} added to the team benchmark.`:`${h.name} removed from the team benchmark.`;}
   catch(e){S.histMsg="That didn't save. Try again.";}
   render();
@@ -1237,7 +1332,7 @@ async function rescoreAll(){
   S.histMsg="Rescoring…";render();
   try{const d=await apiFetch("/api/export");let n=0;
     for(const x of d.results){let r;try{r=scoreData(x.raw);}catch(e){continue;}
-      await apiFetch("/api/results/"+encodeURIComponent(x.id)+"/benchmark",{method:"POST",body:JSON.stringify({on:!!(x.meta&&x.meta.bench),parts:r.parts,total:r.total,proof:r.proof})});n++;}
+      await apiFetch("/api/results/"+encodeURIComponent(x.id)+"/benchmark",{method:"POST",body:JSON.stringify({on:!!(x.meta&&x.meta.bench),parts:r.parts,total:r.total,proof:r.proof,flagTypes:r.flagTypes})});n++;}
     S.histMsg=`Rescored ${n} response${n===1?"":"s"} with the current answer key.`;await loadApiHistory();}
   catch(e){S.histMsg="Rescoring didn't finish. Try again.";render();}
 }
@@ -1250,9 +1345,10 @@ async function exportData(kind){
   try{const d=await apiFetch("/api/export");const day=new Date().toISOString().slice(0,10);
     if(kind==="json"){saveFile(`signal-cs-assessment-${day}.json`,JSON.stringify(d,null,1),"application/json");}
     else{const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
-      const rows=[["Candidate","Finished","Team benchmark","Score","Prioritisation /30","Accuracy /25","Judgement /25","Adaptability /20","Red flags","Accuracy checks","Proof check","Outside-help signs","Red flag details","Outside-help details"]];
+      const rows=[["Candidate","Outcome","Outcome reason","Finished","Team benchmark","Score","Prioritisation /30","Accuracy /25","Judgement /25","Adaptability /20","Red flags","Accuracy checks","Proof check","Outside-help signs","Red flag details","Outside-help details"]];
       for(const x of d.results){let r;try{r=scoreData(x.raw);}catch(e){continue;}
-        rows.push([r.name,new Date(r.finishedAt).toLocaleString("en-AU"),x.meta&&x.meta.bench?"Yes":"",Math.round(r.total),Math.round(r.parts.prio),Math.round(r.parts.acc),Math.round(r.parts.judg),Math.round(r.parts.adapt),
+        const oc=outcome(r.total,r.flagTypes);
+        rows.push([r.name,x.meta&&x.meta.bench?"":oc.label,x.meta&&x.meta.bench?"":oc.reason,new Date(r.finishedAt).toLocaleString("en-AU"),x.meta&&x.meta.bench?"Yes":"",Math.round(r.total),Math.round(r.parts.prio),Math.round(r.parts.acc),Math.round(r.parts.judg),Math.round(r.parts.adapt),
           r.flags.length,`${r.traps.length}/${r.trapsAll.length}`,r.proof||"Not in this version",r.signals?r.signals.list.length:"",r.flags.join("; "),r.signals?r.signals.list.join("; "):""]);}
       saveFile(`signal-cs-assessment-${day}.csv`,rows.map(r=>r.map(q).join(",")).join("\n"),"text/csv");}
     S.histMsg=`Downloaded ${d.count} response${d.count===1?"":"s"}.`;}
@@ -1260,10 +1356,10 @@ async function exportData(kind){
   render();
 }
 function historyView(){
-  return `<section class="panel">${historyBlock("Completed responses")}<button class="btn" id="backStart" style="align-self:flex-start">Back to assessor area</button></section>`;
+  return `<div style="display:flex;flex-direction:column;gap:20px"><section class="panel">${historyBlock("Completed responses")}<button class="btn" id="backStart" style="align-self:flex-start">Back to assessor area</button></section>${bandsPanel()}</div>`;
 }
 
-const summarise=(id,r)=>({_id:id,name:r.name,finishedAt:r.finishedAt,total:r.total,flagsN:(r.flags||[]).length,proof:r.proof||null,integN:r.signals?r.signals.list.length:null,trapsTxt:`${(r.traps||[]).length}/${(r.trapsAll||[]).length||7}`,_full:r});
+const summarise=(id,r)=>({_id:id,name:r.name,finishedAt:r.finishedAt,total:r.total,flagsN:(r.flags||[]).length,proof:r.proof||null,flagTypes:r.flagTypes||(r.flags||[]).map(flagType),integN:r.signals?r.signals.list.length:null,trapsTxt:`${(r.traps||[]).length}/${(r.trapsAll||[]).length||7}`,_full:r});
 async function apiFetch(path,opts={}){
   const res=await fetch(path,{...opts,headers:{"content-type":"application/json","x-assessor-pin":S.pinPlain||"",...(opts.headers||{})}});
   if(!res.ok){let code="";try{code=(await res.json()).error||"";}catch(e){}throw new Error(code||("http "+res.status));}
@@ -1271,7 +1367,7 @@ async function apiFetch(path,opts={}){
 }
 async function loadApiHistory(){
   histNote="Loading saved results…";
-  try{const d=await apiFetch("/api/results");HIST=d.results.map(x=>({_id:x.id,name:x.name,finishedAt:x.finishedAt,total:x.total,flagsN:x.flags,trapsTxt:x.traps,integN:x.integ,bench:!!x.bench,parts:x.parts||null,proof:x.proof||null}));
+  try{const d=await apiFetch("/api/results");HIST=d.results.map(x=>({_id:x.id,name:x.name,finishedAt:x.finishedAt,total:x.total,flagsN:x.flags,trapsTxt:x.traps,integN:x.integ,bench:!!x.bench,parts:x.parts||null,proof:x.proof||null,flagTypes:Array.isArray(x.flagTypes)?x.flagTypes:null}));
     histNote="No candidates have finished yet. Responses appear here as soon as someone completes the exercise.";}
   catch(e){histNote=e.message==="pin_not_set"?"The Worker has no ASSESSOR_PIN secret yet. Add it under the Worker's Settings → Variables and Secrets, then choose Refresh."
       :e.message==="forbidden"?"The Worker's ASSESSOR_PIN secret doesn't match the PIN you unlocked with. Check the secret's value is 731946, then choose Refresh."
@@ -1281,6 +1377,7 @@ async function loadApiHistory(){
 }
 let histLoaded=false;
 function ensureHistory(){
+  loadBands();
   if(histLoaded)return; histLoaded=true;
   if(API_MODE){setTimeout(loadApiHistory,0);return;}
   if(!db)return;
@@ -1324,8 +1421,11 @@ function bind(){
   on("#exportCsv","click",()=>exportData("csv"));
   on("#rescoreAll","click",rescoreAll);
   on("#exportJson","click",()=>exportData("json"));
-  on("#histq","input",e=>{S.histQ=e.target.value;const q=S.histQ.trim().toLowerCase();let n=0;
-    document.querySelectorAll("tr[data-name]").forEach(r=>{const show=!q||r.dataset.name.includes(q);r.hidden=!show;if(show)n++;});
+  on("#histOut","change",e=>{S.histOutcome=e.target.value;render();});
+  on("#saveBands","click",saveBands);
+  on("#resetBands","click",()=>{document.querySelectorAll("input[data-disq]").forEach(x=>x.checked=DEFAULT_BANDS.disq.includes(x.value));$("#bandInterview").value=DEFAULT_BANDS.interview;$("#bandReview").value=DEFAULT_BANDS.review;});
+  on("#histq","input",e=>{S.histQ=e.target.value;const q=S.histQ.trim().toLowerCase();const of=S.histOutcome||"all";let n=0;
+    document.querySelectorAll("tr[data-name]").forEach(r=>{const show=(!q||r.dataset.name.includes(q))&&(of==="all"||r.dataset.out===of);r.hidden=!show;if(show)n++;});
     const c=$("#histCount");if(c)c.textContent=`${n} of ${HIST.length} candidates, newest first`;});
     on("[data-pri]","change",e=>{S.pri[+e.target.dataset.pri]=e.target.value;render();});
   on("[data-up]","click",e=>{const i=+e.currentTarget.dataset.up;[S.order[i-1],S.order[i]]=[S.order[i],S.order[i-1]];render();});
@@ -1348,7 +1448,7 @@ function bind(){
   on("#pasteCode","input",e=>{S.pasted=e.target.value;});
   on("#loadCode","click",()=>{try{const raw=decodeResult($("#pasteCode").value);S.result=scoreData(raw);S.result._fromCode=$("#pasteCode").value.replace(/\s+/g,"");S.codeErr="";S.stage="results";}catch(e){S.codeErr=e.message;}render();});
   on("#saveCode","click",async e=>{e.currentTarget.disabled=true;try{const {_fromCode,...r}=S.result;
-    if(API_MODE){const raw=decodeResult(_fromCode);const res=await fetch("/api/results",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({raw,code:_fromCode,name:r.name,total:r.total,finishedAt:r.finishedAt,flags:r.flags.length,traps:`${r.traps.length}/${r.trapsAll.length}`,integ:r.signals?r.signals.list.length:null,parts:r.parts,proof:r.proof})});if(!res.ok)throw new Error();}
+    if(API_MODE){const raw=decodeResult(_fromCode);const res=await fetch("/api/results",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({raw,code:_fromCode,name:r.name,total:r.total,finishedAt:r.finishedAt,flags:r.flags.length,traps:`${r.traps.length}/${r.trapsAll.length}`,integ:r.signals?r.signals.list.length:null,parts:r.parts,proof:r.proof,flagTypes:r.flagTypes})});if(!res.ok)throw new Error();}
     else await db.collection("results").doc().set({...r,code:_fromCode});
     S.result._saved=true;}catch(err){S.codeErr="Couldn't save this result. Try again.";}render();});
   on("#showRes","click",()=>{S.unlocked=false;S.pinErr="";S.stage="results";render();});
@@ -1486,7 +1586,8 @@ function scoreData(d){
   if(pid){const pq=ALL[pid].q.find(q=>q.cat==="p"),pa=A[pid];const n=Object.keys(pq.errors).length;
     if(!pa)proof="Not reached";else{const pr=proofResult(pq,pa[ALL[pid].q.indexOf(pq)]);proof=`${pr.found.length}/${n} found${pr.wrong.length?`, ${pr.wrong.length} wrongly flagged`:""}`;}}
   const signals=integritySignals(d);
-  return {...d,signals,proof,writtenAll:written,written:(written.find(w=>!w.draft)||{}).text||"",parts,total:parts.prio+parts.acc+parts.judg+parts.adapt,flags,traps,trapsAll,review};
+  const flagTypes=[...new Set(flags.map(flagType))];
+  return {...d,signals,proof,flagTypes,writtenAll:written,written:(written.find(w=>!w.draft)||{}).text||"",parts,total:parts.prio+parts.acc+parts.judg+parts.adapt,flags,traps,trapsAll,review};
 }
 
 function rawResult(){
@@ -1512,7 +1613,7 @@ async function finish(){
   const raw=rawResult();S.code=encodeResult(raw);
   S.result=scoreData(raw);S.stage="done";S.saved=null;render();
   if(API_MODE){
-    try{const res=await fetch("/api/results",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({raw,code:S.code,name:S.result.name,total:S.result.total,finishedAt:S.result.finishedAt,flags:S.result.flags.length,traps:`${S.result.traps.length}/${S.result.trapsAll.length}`,integ:S.result.signals?S.result.signals.list.length:null,parts:S.result.parts,proof:S.result.proof})});
+    try{const res=await fetch("/api/results",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({raw,code:S.code,name:S.result.name,total:S.result.total,finishedAt:S.result.finishedAt,flags:S.result.flags.length,traps:`${S.result.traps.length}/${S.result.trapsAll.length}`,integ:S.result.signals?S.result.signals.list.length:null,parts:S.result.parts,proof:S.result.proof,flagTypes:S.result.flagTypes})});
       S.saved=res.ok;}catch(e){S.saved=false;}
     if(S.stage==="done")render();return;}
   if(!db){S.saved=false;render();return;}
